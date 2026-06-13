@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-06-10T10:38:37.634Z",
+  "projectRoot": "/home/deu/Coding Repos/EcosystemAI",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": true,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1781087917634
+}
