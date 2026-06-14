@@ -20,7 +20,7 @@ export function CustomTooltip({
         {payload.map((entry) => (
           <div key={entry.name} className="flex items-center justify-between gap-6 text-xs">
             <span style={{ color: entry.color }}>{entry.name}</span>
-            <span className="font-mono text-slate-100">{Math.round(entry.value).toLocaleString()}</span>
+            <span className="font-mono text-body-strong">{Math.round(entry.value).toLocaleString()}</span>
           </div>
         ))}
       </div>

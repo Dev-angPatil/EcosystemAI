@@ -21,11 +21,11 @@ export function TrophicTrajectoryChart() {
     <div className="w-full h-full min-h-[340px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={timeline}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-          <XAxis dataKey="year" stroke="#64748b" tickLine={false} tick={{ fontSize: 11 }} />
-          <YAxis stroke="#64748b" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+          <XAxis dataKey="year" stroke="#5a5a5a" tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
+          <YAxis stroke="#5a5a5a" tickLine={false} axisLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
           <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
           
           {activeSpecies.map((sp, sIdx) => (
             <Line

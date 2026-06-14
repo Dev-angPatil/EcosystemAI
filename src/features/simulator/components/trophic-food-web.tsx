@@ -213,7 +213,7 @@ export function TrophicFoodWeb() {
         <div>
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider">Trophic Interaction Network</h3>
+              <h3 className="text-xs font-mono text-primary uppercase tracking-wider">Trophic Interaction Network</h3>
               <p className="text-[10px] font-mono text-muted mt-0.5">Energy flows upwards from prey to predators. Node sizes reflect biomass.</p>
             </div>
             <div className="flex gap-1.5 items-center">
@@ -394,7 +394,7 @@ export function TrophicFoodWeb() {
             })()
           ) : (
             <div className="text-[10px] font-mono text-muted flex items-center gap-1">
-              <Info className="size-3 text-cyan-500" />
+              <Info className="size-3 text-primary" />
               Hover over species nodes to trace food web links and review ecological parameters.
             </div>
           )}
@@ -404,7 +404,7 @@ export function TrophicFoodWeb() {
       {/* Trophic Pyramid Card */}
       <div className="bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
         <div>
-          <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider">Trophic Biomass Pyramid</h3>
+          <h3 className="text-xs font-mono text-primary uppercase tracking-wider">Trophic Biomass Pyramid</h3>
           <p className="text-[10px] font-mono text-muted mt-0.5">Ecological scaling showing energy transfer efficiency across tiers.</p>
         </div>
 
@@ -419,7 +419,7 @@ export function TrophicFoodWeb() {
                 return (
                   <div key={lvl.level} className="space-y-1">
                     <div className="flex justify-between items-center text-[10px] font-mono">
-                      <span className="text-slate-300 font-semibold">{lvl.level}</span>
+                      <span className="text-body font-semibold">{lvl.level}</span>
                       <span className="text-white font-bold">{lvl.biomass.toFixed(1)} kg</span>
                     </div>
                     <div className="w-full bg-surface-soft h-5 border border-hairline rounded relative overflow-hidden flex items-center justify-center">
@@ -430,7 +430,7 @@ export function TrophicFoodWeb() {
                           backgroundColor: color,
                         }}
                       />
-                      <div className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-slate-400">
+                      <div className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-muted">
                         {percentage.toFixed(1)}% Relative Scale
                       </div>
                     </div>
@@ -441,7 +441,7 @@ export function TrophicFoodWeb() {
 
             {/* Transfer Efficiencies */}
             <div className="border-t border-hairline pt-3 space-y-2">
-              <div className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider flex items-center gap-1">
+              <div className="text-[10px] font-mono text-primary uppercase tracking-wider flex items-center gap-1">
                 Trophic Efficiencies
               </div>
               <div className="grid grid-cols-3 gap-2 text-[9px] font-mono text-center">

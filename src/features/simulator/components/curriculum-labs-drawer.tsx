@@ -338,15 +338,15 @@ export function CurriculumLabsDrawer({
     };
 
     return (
-      <div className="space-y-4 bg-slate-900/60 border border-slate-800 p-3.5 rounded-lg mt-3">
-        <div className="font-mono text-[9px] text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-850 pb-1.5">
+      <div className="space-y-4 bg-surface-soft border border-hairline p-3.5 rounded-lg mt-3">
+        <div className="font-mono text-[9px] text-primary uppercase tracking-wider flex items-center gap-1.5 border-b border-hairline pb-1.5">
           <Activity className="size-3" /> Lab Assessment Quiz
         </div>
         {questions.map((q, qIdx) => {
           const selectedOption = answers[qIdx];
           return (
             <div key={qIdx} className="space-y-1.5">
-              <div className="text-slate-300 font-semibold text-xs leading-4">{qIdx + 1}. {q.q}</div>
+              <div className="text-body-strong font-semibold text-xs leading-4">{qIdx + 1}. {q.q}</div>
               <div className="space-y-1">
                 {q.opts.map((opt, oIdx) => {
                   const isCurrent = selectedOption === oIdx;
@@ -359,8 +359,8 @@ export function CurriculumLabsDrawer({
                         isCurrent
                           ? isSubmitted
                             ? oIdx === q.ans
-                              ? "bg-accent-emerald/10 border-accent-emerald/30 text-accent-emerald"
-                              : "bg-accent-rose/10 border-accent-rose/30 text-accent-rose"
+                              ? "bg-success/10 border-success/30 text-success"
+                              : "bg-error/10 border-error/30 text-error"
                             : "bg-primary/10 border-primary/30 text-primary"
                           : "bg-surface-soft border-hairline text-muted hover:border-hairline-strong hover:text-ink"
                       }`}
@@ -427,22 +427,22 @@ export function CurriculumLabsDrawer({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.35 }}
-            className="fixed inset-y-0 right-0 z-50 w-full max-w-sm border-l border-cyan-300/15 bg-slate-950/95 p-6 shadow-2xl backdrop-blur-md flex flex-col justify-between"
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-sm border-l border-hairline bg-canvas/95 p-6 shadow-2xl backdrop-blur-md flex flex-col justify-between"
           >
             <div className="flex flex-col gap-6 overflow-y-auto flex-1 pr-1">
-              <div className="flex items-center justify-between border-b border-slate-850 pb-3">
+              <div className="flex items-center justify-between border-b border-hairline pb-3">
                 <div className="flex items-center gap-2">
                   <FlaskConical className="size-5 text-emerald-400" />
-                  <span className="font-mono text-sm font-semibold text-slate-200">Lab Missions Drawer</span>
+                  <span className="font-mono text-sm font-semibold text-body-strong">Lab Missions Drawer</span>
                 </div>
-                <button onClick={() => setSelectedLab(null)} className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-slate-200 transition">
+                <button onClick={() => setSelectedLab(null)} className="p-1.5 rounded hover:bg-white/5 text-muted hover:text-body-strong transition">
                   <X className="size-4" />
                 </button>
               </div>
 
               {/* Lab Selector */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Active Challenge</label>
+                <label className="text-[10px] font-mono uppercase tracking-wider text-muted">Active Challenge</label>
                 <select
                   value={selectedLab ?? "physiology-wue"}
                   onChange={(e) => {
@@ -450,7 +450,7 @@ export function CurriculumLabsDrawer({
                     setSelectedLab(lab);
                     startLab(lab);
                   }}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-sm text-cyan-200 font-mono focus:outline-none"
+                  className="w-full bg-canvas border border-hairline rounded p-2 text-sm text-primary font-mono focus:outline-none"
                 >
                   <option value="physiology-wue">1. Canopy Physiology & WUE</option>
                   <option value="lake-hysteresis">2. Shallow Lake Hysteresis</option>
@@ -459,7 +459,7 @@ export function CurriculumLabsDrawer({
 
               {/* Lab Details */}
               {selectedLab === "may-stability" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">Robert May&apos;s Complexity Limit</h4>
                     <p className="opacity-90">
@@ -467,23 +467,23 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Activate 6 or more species in the Temperate Forest, observe the instability, and reduce the link strength modifier to restore system stability.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       [`Activate at least 6 species (${labEvaluations.may.activeCount}/6)`, labEvaluations.may.cond1],
                       ["Set Interspecific Link Strength <= 0.6", labEvaluations.may.cond3],
                       ["Coexistence stable (All Eigenvalues Re < 0)", labEvaluations.may.cond2],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -527,7 +527,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "competitive" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">Competitive Exclusion Principle</h4>
                     <p className="opacity-90">
@@ -535,23 +535,23 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Observe Gause&apos;s Law. With both Rabbits and Deer active in the Temperate Forest, simulate their competition for grass until one species is driven to extinction.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       ["Select Temperate Forest biome", biome === "forest"],
                       ["Activate both Rabbits and Deer", labEvaluations.comp.cond1],
                       ["Simulate competitive exclusion (Rabbits or Deer density < 5.0)", labEvaluations.comp.cond2],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -595,7 +595,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "rescue" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">Source-Sink Metapopulations</h4>
                     <p className="opacity-90">
@@ -603,23 +603,23 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       The right-side sink of the grid (X &ge; 5) is separated by a highway barrier. Build a wildlife overpass (corridor) to rescue the sink from complete extinction.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       ["Simulate dry/fragmented habitat", controls.rainfall < 400],
                       ["Place Wildlife Corridor (Click column 4 or 5 at any row)", labEvaluations.rescue.cond1],
                       ["Rescue sink consumers (Right-side consumers > 10.0)", labEvaluations.rescue.cond2],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -663,7 +663,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "eutrophication" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">4. Eutrophication & Hypoxic Dead Zones</h4>
                     <p className="opacity-90">
@@ -671,23 +671,23 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Enable Eutrophication runoff. Run the simulation and observe the algal bloom in Year 1 followed by hypoxic dead zones (shaded cell overlays) and consumer suffocation.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       ["Enable Eutrophication Pulse setting", labEvaluations.eutroph.pulse],
                       ["Observe primary producer bloom (>400 units in a cell)", labEvaluations.eutroph.bloom],
                       ["Detect hypoxic dead zones (flashing gray cells)", labEvaluations.eutroph.hypoxia],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -731,7 +731,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "climate-toxins" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">5. Climate warming & Biomagnification</h4>
                     <p className="opacity-90">
@@ -739,23 +739,23 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Trigger climate warming rate &ge; 0.2°C/yr and toxin influx &ge; 0.1 units/yr. Monitor bioaccumulation and observe the apex predator crash in later years.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       ["Enable Climate Warming rate >= 0.2°C/yr", labEvaluations.climate.warming],
                       ["Set Toxin Influx rate >= 0.1 units/yr", labEvaluations.climate.toxic],
                       ["Accumulate toxin in cells (>0.5 units concentration)", labEvaluations.climate.bioconc],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -799,7 +799,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "physiology-wue" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">Canopy Physiology & WUE</h4>
                     <p className="opacity-90">
@@ -807,22 +807,22 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Set Wild Grass photosynthetic pathway to C4 or CAM under temperature &gt;= 30°C to restrict stomatal conductance water loss.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       ["Select C4 or CAM pathway for Wild Grass", labEvaluations.phys.cond1],
                       ["Ensure Temperature is >= 30.0°C", labEvaluations.phys.cond2],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -857,7 +857,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "lake-hysteresis" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">Shallow Lake Hysteresis & Alternative Stable States</h4>
                     <p className="opacity-90">
@@ -865,21 +865,21 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Run the Hysteresis batch scan using the simulation controllers to trace the forward and backward transition curves.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       ["Execute Hysteresis simulation sweep", labEvaluations.hyst.cond1],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -914,7 +914,7 @@ export function CurriculumLabsDrawer({
               )}
 
               {selectedLab === "som-kinetics" && (
-                <div className="space-y-4 text-slate-300 text-xs leading-5">
+                <div className="space-y-4 text-body text-xs leading-5">
                   <div>
                     <h4 className="font-semibold text-sm text-cyan-200 mb-1">Soil Carbon Multi-Pool Kinetics</h4>
                     <p className="opacity-90">
@@ -922,21 +922,21 @@ export function CurriculumLabsDrawer({
                     </p>
                   </div>
 
-                  <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
+                  <div className="bg-surface-soft border border-hairline p-3 rounded space-y-2">
                     <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                     <p className="opacity-90">
                       Simulate the decomposition loop and accumulate active or slow soil organic carbon in cells.
                     </p>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-850 pt-3">
-                    <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-2">Progress Checklist</div>
+                  <div className="space-y-2 border-t border-hairline pt-3">
+                    <div className="font-mono text-[10px] text-muted uppercase tracking-wider mb-2">Progress Checklist</div>
                     {[
                       [`Accumulate Active/Slow soil carbon pools (>15 total units avg)`, labEvaluations.soil.cond1],
                     ].map(([lbl, active], i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 ${active ? "text-emerald-400" : "text-slate-700"}`} />
-                        <span className={active ? "text-slate-200" : "text-slate-500"}>{lbl as string}</span>
+                        <CheckCircle2 className={`size-4 ${active ? "text-success" : "text-muted-soft"}`} />
+                        <span className={active ? "text-body-strong" : "text-muted"}>{lbl as string}</span>
                       </div>
                     ))}
                   </div>
@@ -977,7 +977,7 @@ export function CurriculumLabsDrawer({
                     onClick={() => {
                       alert("🎓 ECOCHAIN-AI LMS CERTIFICATE OF COMPLETION\n\nStudent has successfully passed all university-level ecology laboratory examinations:\n1. Canopy Physiology & Water Use Efficiency (Certified)\n2. Shallow Lake Phosphorus Hysteresis (Certified)\n\nGPA: 4.0 / 4.0\nEcosystemAI Registrar.");
                     }}
-                    className="px-2 py-1 bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 rounded transition"
+                    className="px-2 py-1 bg-success text-canvas font-bold hover:bg-emerald-400 rounded transition"
                   >
                     Download Transcript
                   </button>
@@ -985,16 +985,16 @@ export function CurriculumLabsDrawer({
               )}
             </div>
 
-            <div className="border-t border-slate-850 pt-4 flex gap-2">
+            <div className="border-t border-hairline pt-4 flex gap-2">
               <button
                 onClick={() => startLab(selectedLab)}
-                className="flex-1 text-center font-mono text-xs uppercase tracking-wider border border-slate-700 hover:border-cyan-300/45 rounded py-2 hover:bg-white/5 text-slate-300 transition"
+                className="flex-1 text-center font-mono text-xs uppercase tracking-wider border border-hairline hover:border-primary/45 rounded py-2 hover:bg-surface-elevated text-body transition"
               >
                 Restart Mission
               </button>
               <button
                 onClick={() => setSelectedLab(null)}
-                className="flex-1 text-center font-mono text-xs uppercase tracking-wider bg-slate-900 border border-slate-850 rounded py-2 text-slate-400 hover:text-slate-200 transition"
+                className="flex-1 text-center font-mono text-xs uppercase tracking-wider bg-canvas border border-hairline rounded py-2 text-muted hover:text-body transition"
               >
                 Close Drawer
               </button>

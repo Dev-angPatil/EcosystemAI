@@ -238,31 +238,31 @@ export function SpatialGridMap() {
                   {activeSpecies.map((sp) => {
                     const val = (hoveredCell?.populations?.[sp.id] ?? selectedCellData?.populations?.[sp.id]);
                     return (
-                      <div key={sp.id} className="flex justify-between items-center text-xs py-1 border-b border-slate-900">
-                        <span className="capitalize text-slate-400">{sp.name.slice(0, 12)}:</span>
-                        <span className="font-mono text-slate-100 font-bold">{val !== undefined ? val.toFixed(2) : "0.0"}</span>
+                      <div key={sp.id} className="flex justify-between items-center text-xs py-1 border-b border-hairline">
+                        <span className="capitalize text-muted">{sp.name.slice(0, 12)}:</span>
+                        <span className="font-mono text-body-strong font-bold">{val !== undefined ? val.toFixed(2) : "0.0"}</span>
                       </div>
                     );
                   })}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-900 space-y-1.5 text-[11px] font-mono">
+                <div className="mt-4 pt-3 border-t border-hairline space-y-1.5 text-[11px] font-mono">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Hypoxic Zone:</span>
-                    <span className={(hoveredCell?.hypoxic ?? selectedCellData?.hypoxic) ? "text-rose-400 font-bold animate-pulse" : "text-slate-400"}>
+                    <span className="text-muted">Hypoxic Zone:</span>
+                    <span className={(hoveredCell?.hypoxic ?? selectedCellData?.hypoxic) ? "text-rose-400 font-bold animate-pulse" : "text-muted"}>
                       {(hoveredCell?.hypoxic ?? selectedCellData?.hypoxic) ? "YES (DEAD)" : "NO"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Mercury (Hg):</span>
-                    <span className={(hoveredCell?.toxin_concentration ?? selectedCellData?.toxin_concentration ?? 0) > 1.5 ? "text-lime-400 font-bold" : "text-slate-400"}>
+                    <span className="text-muted">Mercury (Hg):</span>
+                    <span className={(hoveredCell?.toxin_concentration ?? selectedCellData?.toxin_concentration ?? 0) > 1.5 ? "text-lime-400 font-bold" : "text-muted"}>
                       {(hoveredCell?.toxin_concentration ?? selectedCellData?.toxin_concentration ?? 0).toFixed(3)} units
                     </span>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-slate-500 italic py-6 leading-5">
+              <div className="text-xs text-muted italic py-6 leading-5">
                 Hover or click cells to analyze localized population metrics. Click column 4 or 5 to build a wildlife bridge.
               </div>
             )}
@@ -271,7 +271,7 @@ export function SpatialGridMap() {
           {selectedCell && (
             <button 
               onClick={() => setSelectedCell(null)}
-              className="w-full text-center text-[10px] font-mono uppercase tracking-[0.16em] border border-slate-700 hover:border-slate-500 rounded p-2 text-slate-400 hover:text-slate-200 transition mt-4"
+              className="w-full text-center text-[10px] font-mono uppercase tracking-[0.16em] border border-hairline hover:border-hairline-strong bg-canvas rounded p-2 text-muted hover:text-body transition mt-4"
             >
               Reset Selection
             </button>

@@ -1,13 +1,38 @@
-import React from "react";
-import { Hexagon, FlaskConical } from "lucide-react";
+"use client";
+
+import React, { useEffect } from "react";
+import { Hexagon, FlaskConical, Play } from "lucide-react";
 import { useSimulationStore } from "../store";
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  onStartDemo?: () => void;
+  isDemoMode?: boolean;
+}
+
+export function DashboardHeader({ onStartDemo, isDemoMode }: DashboardHeaderProps) {
   const curriculumTab = useSimulationStore((state) => state.curriculumTab || "physiology");
   const setCurriculumTab = useSimulationStore((state) => state.setCurriculumTab || (() => {}));
   const selectedLab = useSimulationStore((state) => state.selectedLab);
   const setSelectedLab = useSimulationStore((state) => state.setSelectedLab);
   const startLab = useSimulationStore((state) => state.startLab || (() => {}));
+
+  // D key shortcut to start demo
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "d" || e.key === "D") {
+        // Only if no input is focused
+        if (
+          document.activeElement?.tagName !== "INPUT" &&
+          document.activeElement?.tagName !== "TEXTAREA" &&
+          document.activeElement?.tagName !== "SELECT"
+        ) {
+          onStartDemo?.();
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onStartDemo]);
 
   return (
     <header className="border-b border-hairline bg-surface-soft px-4 py-3 md:px-5">
@@ -21,7 +46,7 @@ export function DashboardHeader() {
               EcoChain-AI / Degree-Level Ecology LMS
             </div>
             <h1 className="mt-1 text-title-lg text-ink md:text-display-sm">
-              Ecosystem Sandbox & Research Desk
+              Ecosystem Sandbox &amp; Research Desk
             </h1>
           </div>
         </div>
@@ -54,6 +79,23 @@ export function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Demo Mode Button */}
+          {onStartDemo && (
+            <button
+              data-demo-id="demo-button"
+              onClick={onStartDemo}
+              className={`px-3 py-2 rounded-md border text-caption-uppercase flex items-center gap-2 transition font-mono ${
+                isDemoMode
+                  ? "bg-primary border-primary text-on-primary font-semibold animate-pulse"
+                  : "border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary"
+              }`}
+              title="Start guided demo tour (D)"
+            >
+              <Play className="size-3.5" />
+              {isDemoMode ? "Tour Active" : "Start Demo"}
+            </button>
+          )}
+
           <button
             onClick={() => {
               setSelectedLab(selectedLab ? null : "physiology-wue");

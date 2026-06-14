@@ -175,7 +175,7 @@ export function CanopyPhysiologyView() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Physiology Controls Card */}
         <div className="bg-surface-card border border-hairline p-4 rounded-lg space-y-4">
-          <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider">Physiology Controls</h3>
+          <h3 className="text-xs font-mono text-primary uppercase tracking-wider">Physiology Controls</h3>
           
           <div className="space-y-2">
             <label className="text-[10px] font-mono text-muted block uppercase">Selected Autotroph:</label>
@@ -216,7 +216,7 @@ export function CanopyPhysiologyView() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted">Stomatal Conductance (gs):</span>
-                <span className="text-cyan-400 font-bold">
+                <span className="text-primary font-bold">
                   {currentStats.gs.toFixed(4)} <span className="text-[10px] text-muted">mol/m²/s</span>
                 </span>
               </div>
@@ -246,7 +246,7 @@ export function CanopyPhysiologyView() {
         {/* Stomatal Pore Simulator & Pathway Diagram */}
         <div className="bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
           <div>
-            <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider">Stomatal Pore & Gas Exchange</h3>
+            <h3 className="text-xs font-mono text-primary uppercase tracking-wider">Stomatal Pore & Gas Exchange</h3>
             <p className="text-[10px] font-mono text-muted mt-0.5">Dynamic pore dilation based on stomatal conductance ($g_s$).</p>
           </div>
 
@@ -319,7 +319,7 @@ export function CanopyPhysiologyView() {
         {/* FvCB Photosynthesis Curves Card */}
         <div className="bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
           <div>
-            <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider mb-2">Farquhar-von Caemmerer-Berry Curves</h3>
+            <h3 className="text-xs font-mono text-primary uppercase tracking-wider mb-2">Farquhar-von Caemmerer-Berry Curves</h3>
             <p className="text-[10px] font-mono text-muted">Plotted limits showing Rubisco activity ($A_c$, blue) and light/RuBP activity ($A_j$, yellow).</p>
           </div>
 
@@ -332,16 +332,16 @@ export function CanopyPhysiologyView() {
             <TabsContent value="light" className="h-[140px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={parCurveData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                  <XAxis dataKey="par" stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <YAxis stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#2a2a2a", fontSize: 9, fontFamily: "monospace" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+                  <XAxis dataKey="par" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} verticalAlign="top" height={20} />
                   
                   <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1} strokeDasharray="3 3" dot={false} />
                   <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#10b981" strokeWidth={2} dot={false} />
-                  <ReferenceLine x={controls.light_intensity ?? 800.0} stroke="#f43f5e" strokeDasharray="2 2" />
+                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2} dot={false} />
+                  <ReferenceLine x={controls.light_intensity ?? 800.0} stroke="#ef4444" strokeDasharray="2 2" />
                 </LineChart>
               </ResponsiveContainer>
             </TabsContent>
@@ -349,16 +349,16 @@ export function CanopyPhysiologyView() {
             <TabsContent value="co2" className="h-[140px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={co2CurveData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                  <XAxis dataKey="co2" stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <YAxis stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#2a2a2a", fontSize: 9, fontFamily: "monospace" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+                  <XAxis dataKey="co2" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} verticalAlign="top" height={20} />
                   
                   <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1} strokeDasharray="3 3" dot={false} />
                   <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#10b981" strokeWidth={2} dot={false} />
-                  <ReferenceLine x={controls.co2 ?? 420.0} stroke="#f43f5e" strokeDasharray="2 2" />
+                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2} dot={false} />
+                  <ReferenceLine x={controls.co2 ?? 420.0} stroke="#ef4444" strokeDasharray="2 2" />
                 </LineChart>
               </ResponsiveContainer>
             </TabsContent>
@@ -368,7 +368,7 @@ export function CanopyPhysiologyView() {
 
       {/* Leaf Anatomy Biochemical Pathway Schematics */}
       <div className="bg-surface-card border border-hairline p-4 rounded-lg">
-        <h4 className="text-xs font-mono text-cyan-200 uppercase mb-3">Biochemical Pathway Schematic: {pathway}</h4>
+        <h4 className="text-xs font-mono text-primary uppercase mb-3">Biochemical Pathway Schematic: {pathway}</h4>
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
           {/* Pathway SVG Diagram */}
@@ -495,7 +495,7 @@ export function CanopyPhysiologyView() {
           </div>
 
           {/* Description Text */}
-          <div className="md:col-span-7 space-y-2 text-xs font-mono text-slate-400">
+          <div className="md:col-span-7 space-y-2 text-xs font-mono text-muted">
             {pathway === "C3" && (
               <>
                 <h5 className="text-emerald-400 font-bold uppercase">C3 Photosynthesis (Ancestral Standard)</h5>
@@ -511,10 +511,10 @@ export function CanopyPhysiologyView() {
 
             {pathway === "C4" && (
               <>
-                <h5 className="text-cyan-400 font-bold uppercase">C4 Photosynthesis (Spatial Concentration)</h5>
+                <h5 className="text-primary font-bold uppercase">C4 Photosynthesis (Spatial Concentration)</h5>
                 <p>Carbon fixation is divided between Mesophyll cells (PEPC fixes CO₂ to a 4-carbon malate compound) and Bundle Sheath cells (where malate is decarboxylated to release CO₂ directly onto RuBisCO).</p>
-                <div className="bg-emerald-950/20 border border-emerald-900/40 p-2.5 rounded text-[11px] flex gap-2">
-                  <Wind className="size-4 shrink-0 text-emerald-400" />
+                <div className="bg-surface-soft border border-hairline p-2.5 rounded text-[11px] flex gap-2">
+                  <Wind className="size-4 shrink-0 text-success" />
                   <div>
                     <strong>Photorespiration bypass:</strong> Concentrating CO₂ inside the bundle sheath suppresses oxygen binding. Highly efficient under high light, heat, and drought.
                   </div>
@@ -526,8 +526,8 @@ export function CanopyPhysiologyView() {
               <>
                 <h5 className="text-amber-400 font-bold uppercase">CAM Photosynthesis (Temporal Separation)</h5>
                 <p>CO₂ capture and Calvin Cycle are separated in time. Stomata open strictly at night to fix CO₂ into malic acid stored in the large vacuoles. During the day, stomata lock closed to prevent transpiration, while malate releases CO₂ internally for chloroplast photosynthesis.</p>
-                <div className="bg-cyan-950/20 border border-cyan-900/40 p-2.5 rounded text-[11px] flex gap-2">
-                  <Wind className="size-4 shrink-0 text-cyan-400" />
+                <div className="bg-surface-soft border border-hairline p-2.5 rounded text-[11px] flex gap-2">
+                  <Wind className="size-4 shrink-0 text-primary" />
                   <div>
                     <strong>Water Conservation:</strong> Transpiration drops to near zero during hot daylight hours, creating extreme drought and desert resilience.
                   </div>

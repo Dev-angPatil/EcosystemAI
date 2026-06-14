@@ -232,13 +232,13 @@ export function SoilBiogeochemView() {
 
           <div className="w-full md:w-[220px] border-t md:border-t-0 md:border-l border-hairline p-4 bg-surface-card rounded-lg flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-cyan-300">
+              <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-primary">
                 <Activity className="size-3.5" />
                 Soil Stoichiometry
               </div>
               
               <div className="space-y-1 font-mono">
-                <div className="font-semibold text-xs text-slate-200">
+                <div className="font-semibold text-xs text-body-strong">
                   Coordinate: <span className="text-primary">[{displayCell?.x ?? 0}, {displayCell?.y ?? 0}]</span>
                 </div>
                 <div className="text-[9px] text-muted uppercase tracking-wider">
@@ -280,15 +280,15 @@ export function SoilBiogeochemView() {
         <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={timeline}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="year" stroke="#64748b" tickLine={false} tick={{ fontSize: 11 }} />
-              <YAxis stroke="#64748b" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: "#121212", borderColor: "#2a2a2a", fontSize: 10, fontFamily: "monospace" }} />
-              <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+              <XAxis dataKey="year" stroke="#5a5a5a" tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
+              <YAxis stroke="#5a5a5a" tickLine={false} axisLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
+              <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 10, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+              <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
               
               <Line type="monotone" dataKey="nutrients.C" name="Carbon (C)" stroke="#d97706" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="nutrients.N" name="Nitrogen (N)" stroke="#8b5cf6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="nutrients.P" name="Phosphorus (P)" stroke="#06b6d4" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="nutrients.P" name="Phosphorus (P)" stroke="#faff69" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -300,16 +300,16 @@ export function SoilBiogeochemView() {
           {/* Carbon pools */}
           <div className="bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider mb-1">Soil Organic Carbon Pools (Century Model)</h3>
+              <h3 className="text-xs font-mono text-primary uppercase tracking-wider mb-1">Soil Organic Carbon Pools (Century Model)</h3>
               <p className="text-[9px] font-mono text-muted mb-3">Decomposition cycles carbon through active (labile), slow (cellular), and passive (humus) pools.</p>
             </div>
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={somTimelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" />
-                  <XAxis dataKey="year" stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <YAxis stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#2a2a2a", fontSize: 9, fontFamily: "monospace" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+                  <XAxis dataKey="year" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Area type="monotone" dataKey="Active" name="Active (Labile)" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
                   <Area type="monotone" dataKey="Slow" name="Slow (Cellular)" stackId="1" stroke="#a16207" fill="#a16207" fillOpacity={0.2} />
@@ -322,16 +322,16 @@ export function SoilBiogeochemView() {
           {/* Nitrogen stocks */}
           <div className="bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider mb-1">Soil Inorganic Nitrogen Stocks</h3>
+              <h3 className="text-xs font-mono text-primary uppercase tracking-wider mb-1">Soil Inorganic Nitrogen Stocks</h3>
               <p className="text-[9px] font-mono text-muted mb-3">Ammonium (NH₄⁺) is mineralized, nitrified to Nitrate (NO₃⁻), or denitrified under hypoxia.</p>
             </div>
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={somTimelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" />
-                  <XAxis dataKey="year" stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <YAxis stroke="#5a5a5a" style={{ fontSize: 8 }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#2a2a2a", fontSize: 9, fontFamily: "monospace" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+                  <XAxis dataKey="year" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Line type="monotone" dataKey="Ammonium" name="Ammonium (NH₄⁺)" stroke="#a78bfa" strokeWidth={1.8} dot={false} />
                   <Line type="monotone" dataKey="Nitrate" name="Nitrate (NO₃⁻)" stroke="#818cf8" strokeWidth={1.8} dot={false} />
@@ -349,7 +349,7 @@ export function SoilBiogeochemView() {
           {/* SVG Diagram Card */}
           <div className="lg:col-span-8 bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider">Century Kinetic Flow Model</h3>
+              <h3 className="text-xs font-mono text-primary uppercase tracking-wider">Century Kinetic Flow Model</h3>
               <p className="text-[9px] font-mono text-muted mt-0.5">Carbon/Nitrogen transfer velocities scale dynamically with temperature and soil moisture.</p>
             </div>
 
@@ -468,7 +468,7 @@ export function SoilBiogeochemView() {
           {/* Liebig's Law Card */}
           <div className="lg:col-span-4 bg-surface-card border border-hairline p-4 rounded-lg flex flex-col justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider">Liebig Limitation Gauges</h3>
+              <h3 className="text-xs font-mono text-primary uppercase tracking-wider">Liebig Limitation Gauges</h3>
               <p className="text-[9px] font-mono text-muted">Plant growth is restricted by the scarcest stoichiometric resource index.</p>
             </div>
 
