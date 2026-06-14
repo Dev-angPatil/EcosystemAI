@@ -514,13 +514,13 @@ export function EcoChainDashboard() {
                 </select>
               </div>
 
-              <Tabs defaultValue="biotic" className="flex-1 flex flex-col min-h-0">
-                <TabsList>
+              <Tabs defaultValue="biotic" className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <TabsList className="shrink-0">
                   <TabsTrigger value="biotic">Biotic Presets</TabsTrigger>
                   <TabsTrigger value="abiotic">Abiotic Factors</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="biotic" className="flex-1 overflow-y-auto pr-1 space-y-2.5 mt-2">
+                <TabsContent value="biotic" className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-2.5 mt-2">
                   <div className="text-[10px] font-mono uppercase tracking-wider text-muted mb-1">
                     Species Active Toggles & Initial Density
                   </div>
