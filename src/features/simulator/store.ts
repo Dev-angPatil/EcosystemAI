@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { DataPoint, CoachAnalysis, StabilityAnalysis, SpeciesConfig } from "./types";
+import { defaultSpecies, defaultControls } from "./presets";
 
 interface SimulationState {
   // Core simulation
@@ -74,14 +75,13 @@ interface SimulationState {
 
 export const useSimulationStore = create<SimulationState>((set) => ({
   controls: {
-    temperature: 15,
-    precipitation: 100,
-    co2: 400,
-    solar_radiation: 15,
-    humidity: 0.6,
+    ...defaultControls,
+    co2: 420.0,
+    relative_humidity: 65.0,
+    light_intensity: 800.0,
   },
   biome: "forest",
-  species: [],
+  species: JSON.parse(JSON.stringify(defaultSpecies.forest)),
   linkStrength: 1.0,
   corridorY: null,
   activePreset: "default",
