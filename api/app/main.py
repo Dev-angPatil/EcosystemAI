@@ -1,8 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-import subprocess
 import json
+import httpx
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
+from .config import get_settings
 from .ai_coach import get_ai_analysis
 from .schemas import (
     SimulationRequest,
@@ -16,29 +20,47 @@ from .schemas import (
 )
 from .simulation import run_simulation, run_biodiversity_experiment, run_hysteresis_experiment, run_leslie_matrix_projection
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="EcoChain-AI API", version="0.1.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+settings = get_settings()
+origins = [origin.strip() for origin in settings.allowed_origins.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_credentials=True,
+    allow_origins=origins,
+    allow_credentials="*" not in origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-def search_literature(query: str, limit: int = 5) -> list[dict]:
-    cli_path = "/home/deu/.gemini/config/plugins/science/skills/literature_search_openalex/scripts/openalex_cli.py"
-    cmd = [
-        "python", cli_path,
-        "filter", "works",
-        "--search", query,
-        "--per-page", str(limit),
-        "--select", "id,display_name,doi,publication_year,abstract_inverted_index"
-    ]
+async def verify_api_key(x_api_key: str | None = Header(None, alias="X-API-Key")):
+    settings = get_settings()
+    if settings.api_key:
+        if not x_api_key or x_api_key != settings.api_key:
+            raise HTTPException(status_code=401, detail="Invalid or missing API Key")
+
+
+
+async def search_literature(query: str, limit: int = 5) -> list[dict]:
+    url = "https://api.openalex.org/works"
+    params = {
+        "search": query,
+        "per_page": limit,
+        "select": "id,display_name,doi,publication_year,abstract_inverted_index"
+    }
+    headers = {
+        "User-Agent": "EcoChain-AI/0.1.0 (mailto:admin@ecochain.ai)"
+    }
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        data = json.loads(res.stdout)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            
         results = []
         for work in data.get("results", []):
             abstract = ""
@@ -72,20 +94,21 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/literature/search")
-async def lit_search(query: str, limit: int = 5) -> list[dict]:
-    return search_literature(query, limit)
+@app.get("/literature/search", dependencies=[Depends(verify_api_key)])
+@limiter.limit("120/minute")
+async def lit_search(request: Request, query: str, limit: int = 5) -> list[dict]:
+    return await search_literature(query, limit)
 
 
-
-@app.post("/simulate", response_model=SimulationResponse)
-async def simulate(request: SimulationRequest) -> SimulationResponse:
-    timeline, params, stability = run_simulation(request)
+@app.post("/simulate", response_model=SimulationResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("120/minute")
+async def simulate(request: Request, simulation_request: SimulationRequest) -> SimulationResponse:
+    timeline, params, stability = run_simulation(simulation_request)
     analysis = await get_ai_analysis(
         timeline,
-        request.abiotic_factors,
+        simulation_request.abiotic_factors,
         parameters=params,
-        preset_id=request.preset_id,
+        preset_id=simulation_request.preset_id,
     )
     return SimulationResponse(
         timeline=timeline,
@@ -95,20 +118,24 @@ async def simulate(request: SimulationRequest) -> SimulationResponse:
     )
 
 
-@app.post("/simulate/biodiversity", response_model=BiodiversityLabResponse)
-async def simulate_biodiversity(request: BiodiversityLabRequest) -> BiodiversityLabResponse:
-    data = run_biodiversity_experiment(request)
+@app.post("/simulate/biodiversity", response_model=BiodiversityLabResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("120/minute")
+async def simulate_biodiversity(request: Request, simulation_request: BiodiversityLabRequest) -> BiodiversityLabResponse:
+    data = run_biodiversity_experiment(simulation_request)
     return BiodiversityLabResponse(data=data)
 
 
-@app.post("/simulate/hysteresis", response_model=HysteresisResponse)
-async def simulate_hysteresis(request: HysteresisRequest) -> HysteresisResponse:
-    data = run_hysteresis_experiment(request)
+@app.post("/simulate/hysteresis", response_model=HysteresisResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("120/minute")
+async def simulate_hysteresis(request: Request, simulation_request: HysteresisRequest) -> HysteresisResponse:
+    data = run_hysteresis_experiment(simulation_request)
     return HysteresisResponse(data=data)
 
 
-@app.post("/simulate/leslie", response_model=LeslieMatrixResponse)
-async def simulate_leslie(request: LeslieMatrixRequest) -> LeslieMatrixResponse:
+@app.post("/simulate/leslie", response_model=LeslieMatrixResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("120/minute")
+async def simulate_leslie(request: Request, simulation_request: LeslieMatrixRequest) -> LeslieMatrixResponse:
     """Age-structured Leslie matrix population projection."""
-    return run_leslie_matrix_projection(request)
+    return run_leslie_matrix_projection(simulation_request)
+
 

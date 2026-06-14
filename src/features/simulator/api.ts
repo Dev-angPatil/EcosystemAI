@@ -2,6 +2,17 @@ import type { SimulationResponse, SimulatorControls, SpeciesConfig, Biodiversity
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
+function getHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+  if (apiKey) {
+    headers["X-API-Key"] = apiKey;
+  }
+  return headers;
+}
+
 export async function fetchSimulation(
   controls: SimulatorControls,
   biome: string,
@@ -17,9 +28,7 @@ export async function fetchSimulation(
 ): Promise<SimulationResponse> {
   const response = await fetch(`${apiBaseUrl}/simulate`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     body: JSON.stringify({
       biome,
       species,
@@ -55,9 +64,7 @@ export async function fetchBiodiversityExperiment(
 ): Promise<BiodiversityLabPoint[]> {
   const response = await fetch(`${apiBaseUrl}/simulate/biodiversity`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     body: JSON.stringify({
       biome,
       species_ids: speciesIds,
@@ -78,9 +85,7 @@ export async function fetchHysteresisExperiment(
 ): Promise<HysteresisPoint[]> {
   const response = await fetch(`${apiBaseUrl}/simulate/hysteresis`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     body: JSON.stringify({
       biome,
       inflow_range: inflowRange,
@@ -104,9 +109,7 @@ export async function fetchLeslieProjection(
 ): Promise<LeslieMatrixResponse> {
   const response = await fetch(`${apiBaseUrl}/simulate/leslie`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     body: JSON.stringify({
       species_name: speciesName,
       fecundity,
@@ -122,3 +125,4 @@ export async function fetchLeslieProjection(
 
   return response.json() as Promise<LeslieMatrixResponse>;
 }
+

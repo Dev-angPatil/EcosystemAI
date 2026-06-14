@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 EcologicalStatus = Literal["Stable", "Unstable", "Collapse"]
@@ -131,8 +131,7 @@ class BiodiversityLabPoint(BaseModel):
     yield_: float = Field(alias="yield")
     stability: float
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class BiodiversityLabResponse(BaseModel):

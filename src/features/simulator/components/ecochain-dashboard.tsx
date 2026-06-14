@@ -35,7 +35,7 @@ import {
   Thermometer,
   Wind,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -108,8 +108,8 @@ function CustomTooltip({
   }
 
   return (
-    <div className="rounded-md border border-cyan-300/20 bg-slate-950/95 p-3 shadow-neon-cyan backdrop-blur">
-      <div className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-cyan-200">Year {label}</div>
+    <div className="rounded-md border border-hairline bg-surface-card p-3">
+      <div className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-primary">Year {label}</div>
       <div className="space-y-1">
         {payload.map((entry) => (
           <div key={entry.name} className="flex items-center justify-between gap-6 text-xs">
@@ -405,55 +405,111 @@ export function EcoChainDashboard() {
   useEffect(() => {
     // Populate biodiversity producers pool when biome changes
     const prodIds = defaultSpecies[biome].filter(s => s.trophic_level === "Producer").map(s => s.id);
-    setSelectedProducers(prodIds);
-    setBiodiversityData([]);
+    const timer = setTimeout(() => {
+      setSelectedProducers(prodIds);
+      setBiodiversityData([]);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [biome]);
 
+  // Decoupled Parameter States for Lag Prevention
+  const [lastAppliedParams, setLastAppliedParams] = useState<any>(null);
+
+  const triggerSimulation = async (
+    overrideControls = controls,
+    overrideBiome = biome,
+    overrideSpecies = species,
+    overrideLinkStrength = linkStrength,
+    overrideCorridorY = corridorY,
+    overridePresetId = activePreset,
+    overrideEutroph = eutrophicationPulse,
+    overrideWarming = climateWarmingRate,
+    overrideToxin = toxinInfluxRate,
+    overrideDisturbanceType = disturbanceType,
+    overrideDisturbanceCells = disturbanceCells
+  ) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await fetchSimulation(
+        overrideControls,
+        overrideBiome,
+        overrideSpecies,
+        overrideLinkStrength,
+        overrideCorridorY,
+        overridePresetId,
+        overrideEutroph,
+        overrideWarming,
+        overrideToxin,
+        overrideDisturbanceType,
+        overrideDisturbanceCells
+      );
+      setTimeline(result.timeline);
+      setAnalysis(result.analysis);
+      setStability(result.stability);
+      setLastAppliedParams({
+        controls: JSON.parse(JSON.stringify(overrideControls)),
+        biome: overrideBiome,
+        species: JSON.parse(JSON.stringify(overrideSpecies)),
+        linkStrength: overrideLinkStrength,
+        corridorY: overrideCorridorY,
+        eutrophicationPulse: overrideEutroph,
+        climateWarmingRate: overrideWarming,
+        toxinInfluxRate: overrideToxin,
+        disturbanceType: overrideDisturbanceType,
+        disturbanceCells: JSON.parse(JSON.stringify(overrideDisturbanceCells))
+      });
+      setCurrentYear(0);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Simulation request failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isDirty = useMemo(() => {
+    if (!lastAppliedParams) return false;
+    if (biome !== lastAppliedParams.biome) return true;
+    if (linkStrength !== lastAppliedParams.linkStrength) return true;
+    if (corridorY !== lastAppliedParams.corridorY) return true;
+    if (eutrophicationPulse !== lastAppliedParams.eutrophicationPulse) return true;
+    if (climateWarmingRate !== lastAppliedParams.climateWarmingRate) return true;
+    if (toxinInfluxRate !== lastAppliedParams.toxinInfluxRate) return true;
+    if (disturbanceType !== lastAppliedParams.disturbanceType) return true;
+    if (controls.rainfall !== lastAppliedParams.controls.rainfall) return true;
+    if (controls.temperature !== lastAppliedParams.controls.temperature) return true;
+    if (controls.nitrogen !== lastAppliedParams.controls.nitrogen) return true;
+    if ((controls.co2 ?? 420.0) !== (lastAppliedParams.controls.co2 ?? 420.0)) return true;
+    if ((controls.relative_humidity ?? 65.0) !== (lastAppliedParams.controls.relative_humidity ?? 65.0)) return true;
+    if ((controls.light_intensity ?? 800.0) !== (lastAppliedParams.controls.light_intensity ?? 800.0)) return true;
+    
+    if (species.length !== lastAppliedParams.species.length) return true;
+    for (let i = 0; i < species.length; i++) {
+      if (species[i].id !== lastAppliedParams.species[i].id) return true;
+      if (species[i].active !== lastAppliedParams.species[i].active) return true;
+      if (Math.round(species[i].initial_pop) !== Math.round(lastAppliedParams.species[i].initial_pop)) return true;
+    }
+    
+    if (disturbanceCells.length !== lastAppliedParams.disturbanceCells.length) return true;
+    
+    return false;
+  }, [lastAppliedParams, biome, linkStrength, corridorY, eutrophicationPulse, climateWarmingRate, toxinInfluxRate, disturbanceType, controls, species, disturbanceCells]);
+
   useEffect(() => {
-    const controller = new AbortController();
-    const timer = window.setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const result = await fetchSimulation(
-          controls,
-          biome,
-          species,
-          linkStrength,
-          corridorY,
-          activePreset,
-          eutrophicationPulse,
-          climateWarmingRate,
-          toxinInfluxRate,
-          disturbanceType,
-          disturbanceCells
-        );
-        if (!controller.signal.aborted) {
-          setTimeline(result.timeline);
-          setAnalysis(result.analysis);
-          setStability(result.stability);
-        }
-      } catch (requestError) {
-        if (!controller.signal.aborted) {
-          setError(requestError instanceof Error ? requestError.message : "Simulation request failed");
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    }, 300);
+    // Run initial simulation on mount
+    const timer = setTimeout(() => {
+      triggerSimulation();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    return () => {
-      controller.abort();
-      window.clearTimeout(timer);
-    };
-  }, [activePreset, controls, biome, species, linkStrength, corridorY, eutrophicationPulse, climateWarmingRate, toxinInfluxRate, disturbanceType, disturbanceCells]);
-
-  // Keep current year bound within new timeline if sliders change
   useEffect(() => {
     if (timeline.length > 0 && currentYear >= timeline.length) {
-      setCurrentYear(0);
+      const timer = setTimeout(() => {
+        setCurrentYear(0);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [timeline, currentYear]);
 
@@ -489,7 +545,7 @@ export function EcoChainDashboard() {
   };
 
   // Run Literature search using backend API
-  const handleLitSearch = async () => {
+  const handleLitSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
     try {
@@ -506,7 +562,7 @@ export function EcoChainDashboard() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [searchQuery]);
 
   // Handle Dynamic Literature parameter injection
   const handleInjectRates = (paper: any) => {
@@ -529,9 +585,12 @@ export function EcoChainDashboard() {
   // Trigger search on tab mount
   useEffect(() => {
     if (curriculumTab === "literature" && searchResults.length === 0) {
-      handleLitSearch();
+      const timer = setTimeout(() => {
+        handleLitSearch();
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [curriculumTab]);
+  }, [curriculumTab, searchResults.length, handleLitSearch]);
 
   // Lab Success evaluations
   const labEvaluations = useMemo(() => {
@@ -622,109 +681,146 @@ export function EcoChainDashboard() {
 
   // Load starting states for labs
   const startLab = (labId: string) => {
+    let nextBiome = biome;
+    let nextSpecies = species;
+    let nextLinkStrength = linkStrength;
+    let nextCorridorY = corridorY;
+    let nextControls = { ...controls };
+    let nextEutroph = eutrophicationPulse;
+    let nextWarming = climateWarmingRate;
+    let nextToxin = toxinInfluxRate;
+
     if (labId === "may-stability") {
-      setBiome("forest");
-      setSpecies(defaultSpecies.forest.map(s => ({ ...s, active: true, initial_pop: s.initial_pop })));
-      setLinkStrength(1.2); // Force unstable
-      setCorridorY(null);
-      setControls(defaultControls);
-      setEutrophicationPulse(false);
-      setClimateWarmingRate(0.0);
-      setToxinInfluxRate(0.0);
+      nextBiome = "forest";
+      nextSpecies = defaultSpecies.forest.map(s => ({ ...s, active: true, initial_pop: s.initial_pop }));
+      nextLinkStrength = 1.2; // Force unstable
+      nextCorridorY = null;
+      nextControls = defaultControls;
+      nextEutroph = false;
+      nextWarming = 0.0;
+      nextToxin = 0.0;
     } else if (labId === "competitive") {
-      setBiome("forest");
-      setSpecies(defaultSpecies.forest.map(s => {
+      nextBiome = "forest";
+      nextSpecies = defaultSpecies.forest.map(s => {
         if (s.id === "grass" || s.id === "rabbits" || s.id === "deer") {
           return { ...s, active: true, initial_pop: s.id === "grass" ? 180 : s.id === "rabbits" ? 120 : 100 };
         }
         return { ...s, active: false };
-      }));
-      setLinkStrength(1.0);
-      setCorridorY(null);
-      setControls(defaultControls);
-      setEutrophicationPulse(false);
-      setClimateWarmingRate(0.0);
-      setToxinInfluxRate(0.0);
+      });
+      nextLinkStrength = 1.0;
+      nextCorridorY = null;
+      nextControls = defaultControls;
+      nextEutroph = false;
+      nextWarming = 0.0;
+      nextToxin = 0.0;
     } else if (labId === "rescue") {
-      setBiome("forest");
-      setSpecies(defaultSpecies.forest.map(s => {
+      nextBiome = "forest";
+      nextSpecies = defaultSpecies.forest.map(s => {
         if (s.id === "grass" || s.id === "rabbits" || s.id === "wolves") {
           return { ...s, active: true, initial_pop: s.initial_pop };
         }
         return { ...s, active: false };
-      }));
-      setLinkStrength(1.0);
-      setCorridorY(null);
-      setControls({
+      });
+      nextLinkStrength = 1.0;
+      nextCorridorY = null;
+      nextControls = {
         rainfall: 250,
         temperature: 34,
         nitrogen: 20,
         co2: 420.0,
         relative_humidity: 65.0,
         light_intensity: 800.0,
-      });
-      setEutrophicationPulse(false);
-      setClimateWarmingRate(0.0);
-      setToxinInfluxRate(0.0);
+      };
+      nextEutroph = false;
+      nextWarming = 0.0;
+      nextToxin = 0.0;
     } else if (labId === "eutrophication") {
-      setBiome("forest");
-      setSpecies(defaultSpecies.forest.map(s => {
+      nextBiome = "forest";
+      nextSpecies = defaultSpecies.forest.map(s => {
         if (s.id === "grass" || s.id === "ferns" || s.id === "rabbits" || s.id === "deer") {
           return { ...s, active: true, initial_pop: s.id === "grass" ? 150 : s.id === "ferns" ? 100 : s.initial_pop };
         }
         return { ...s, active: false };
-      }));
-      setLinkStrength(1.0);
-      setCorridorY(null);
-      setControls(defaultControls);
-      setEutrophicationPulse(true);
-      setClimateWarmingRate(0.0);
-      setToxinInfluxRate(0.0);
+      });
+      nextLinkStrength = 1.0;
+      nextCorridorY = null;
+      nextControls = defaultControls;
+      nextEutroph = true;
+      nextWarming = 0.0;
+      nextToxin = 0.0;
     } else if (labId === "climate-toxins") {
-      setBiome("forest");
-      setSpecies(defaultSpecies.forest.map(s => {
+      nextBiome = "forest";
+      nextSpecies = defaultSpecies.forest.map(s => {
         if (s.id === "grass" || s.id === "rabbits" || s.id === "wolves") {
           return { ...s, active: true, initial_pop: s.initial_pop };
         }
         return { ...s, active: false };
-      }));
-      setLinkStrength(1.0);
-      setCorridorY(null);
-      setControls(defaultControls);
-      setEutrophicationPulse(false);
-      setClimateWarmingRate(0.2); // Warming active
-      setToxinInfluxRate(0.1);    // Mercury Active
+      });
+      nextLinkStrength = 1.0;
+      nextCorridorY = null;
+      nextControls = defaultControls;
+      nextEutroph = false;
+      nextWarming = 0.2; // Warming active
+      nextToxin = 0.1;    // Mercury Active
     } else if (labId === "physiology-wue") {
-      setBiome("forest");
-      setSpecies(defaultSpecies.forest.map(s => {
+      nextBiome = "forest";
+      nextSpecies = defaultSpecies.forest.map(s => {
         if (s.id === "grass") {
           return { ...s, active: true, photosynthetic_pathway: "C3" };
         }
         return { ...s, active: s.trophic_level === "Producer" };
-      }));
+      });
       setCurriculumTab("physiology");
-      setControls(current => ({
-        ...current,
+      nextControls = {
         temperature: 34.0, // High temperature stress
         co2: 420.0,
         relative_humidity: 40.0, // Dry
         light_intensity: 1200.0, // High sunlight
-      }));
-      setEutrophicationPulse(false);
-      setClimateWarmingRate(0.0);
-      setToxinInfluxRate(0.0);
+        rainfall: controls.rainfall,
+        nitrogen: controls.nitrogen,
+      };
+      nextEutroph = false;
+      nextWarming = 0.0;
+      nextToxin = 0.0;
     } else if (labId === "lake-hysteresis") {
-      setBiome("forest");
+      nextBiome = "forest";
       setCurriculumTab("hysteresis");
       setHysteresisData([]);
     } else if (labId === "som-kinetics") {
-      setBiome("forest");
+      nextBiome = "forest";
       setCurriculumTab("biogeochem");
-      setControls(current => ({
-        ...current,
-        rainfall: 800, // Wet conditions to stimulate decomposition and organic carbon flow
+      nextControls = {
+        rainfall: 800, // Wet conditions
         temperature: 24,
-      }));
+        nitrogen: controls.nitrogen,
+        co2: controls.co2,
+        relative_humidity: controls.relative_humidity,
+        light_intensity: controls.light_intensity,
+      };
+    }
+
+    setBiome(nextBiome);
+    setSpecies(nextSpecies);
+    setLinkStrength(nextLinkStrength);
+    setCorridorY(nextCorridorY);
+    setControls(nextControls);
+    setEutrophicationPulse(nextEutroph);
+    setClimateWarmingRate(nextWarming);
+    setToxinInfluxRate(nextToxin);
+    setActivePreset("custom");
+
+    if (labId !== "lake-hysteresis") {
+      triggerSimulation(
+        nextControls,
+        nextBiome,
+        nextSpecies,
+        nextLinkStrength,
+        nextCorridorY,
+        "custom",
+        nextEutroph,
+        nextWarming,
+        nextToxin
+      );
     }
   };
 
@@ -785,10 +881,10 @@ export function EcoChainDashboard() {
                         isCurrent
                           ? isSubmitted
                             ? oIdx === q.ans
-                              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                              : "bg-rose-500/10 border-rose-500/30 text-rose-400"
-                            : "bg-cyan-500/10 border-cyan-500/30 text-cyan-300"
-                          : "bg-slate-950/40 border-slate-900 text-slate-400 hover:border-slate-800"
+                              ? "bg-accent-emerald/10 border-accent-emerald/30 text-accent-emerald"
+                              : "bg-accent-rose/10 border-accent-rose/30 text-accent-rose"
+                            : "bg-primary/10 border-primary/30 text-primary"
+                          : "bg-surface-soft border-hairline text-muted hover:border-hairline-strong hover:text-ink"
                       }`}
                     >
                       {opt}
@@ -806,8 +902,8 @@ export function EcoChainDashboard() {
             disabled={Object.keys(answers).length < questions.length}
             className={`w-full py-1.5 rounded font-mono text-xs uppercase tracking-wider transition-all border ${
               Object.keys(answers).length < questions.length
-                ? "bg-slate-955/20 text-slate-600 border-slate-900 cursor-not-allowed"
-                : "bg-cyan-500/10 hover:bg-cyan-500/20 border-cyan-500/35 text-cyan-300 shadow-neon-cyan"
+                ? "bg-primary-disabled text-muted border-hairline cursor-not-allowed opacity-50"
+                : "bg-primary hover:bg-primary-active border-primary text-on-primary font-semibold"
             }`}
           >
             Submit Quiz
@@ -815,17 +911,17 @@ export function EcoChainDashboard() {
         ) : (
           <div className="space-y-2">
             {isPassed ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded text-emerald-300 text-xs font-mono text-center uppercase tracking-wider flex items-center justify-center gap-1.5 animate-pulse">
-                <CheckCircle2 className="size-4 text-emerald-400" /> Passed! Quiz Certified.
+              <div className="bg-accent-emerald/10 border border-accent-emerald/30 p-2.5 rounded text-accent-emerald text-xs font-mono text-center uppercase tracking-wider flex items-center justify-center gap-1.5 animate-pulse">
+                <CheckCircle2 className="size-4 text-accent-emerald" /> Passed! Quiz Certified.
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="bg-rose-500/10 border border-rose-500/30 p-2.5 rounded text-rose-300 text-xs font-mono text-center uppercase tracking-wider flex items-center justify-center gap-1.5">
-                  <ShieldAlert className="size-4 text-rose-400" /> Failed. Review and retry.
+                <div className="bg-accent-rose/10 border border-accent-rose/30 p-2.5 rounded text-accent-rose text-xs font-mono text-center uppercase tracking-wider flex items-center justify-center gap-1.5">
+                  <ShieldAlert className="size-4 text-accent-rose" /> Failed. Review and retry.
                 </div>
                 <button
                   onClick={handleResetQuiz}
-                  className="w-full py-1.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-xs uppercase tracking-wider hover:bg-slate-800 transition"
+                  className="w-full py-1.5 rounded bg-surface-card border border-hairline text-ink font-mono text-xs uppercase tracking-wider hover:bg-surface-elevated transition"
                 >
                   Retry Quiz
                 </button>
@@ -836,29 +932,28 @@ export function EcoChainDashboard() {
       </div>
     );
   };
-
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,0.16),transparent_32%),radial-gradient(circle_at_92%_12%,rgba(16,185,129,0.14),transparent_28%),#020617] p-3 text-slate-50 sm:p-4 lg:p-5">
-      <div className="scanline relative min-h-[calc(100vh-2rem)] overflow-hidden rounded-lg border border-cyan-300/20 bg-slate-950/80 shadow-[0_0_80px_rgba(8,145,178,0.16)]">
+    <main className="min-h-screen bg-canvas p-3 text-body sm:p-4 lg:p-5">
+      <div className="scanline relative min-h-[calc(100vh-2rem)] overflow-hidden rounded-lg border border-hairline bg-canvas">
         <div className="relative z-10 flex min-h-[calc(100vh-2rem)] flex-col">
-          <header className="border-b border-cyan-300/15 bg-slate-950/85 px-4 py-3 backdrop-blur md:px-5">
+          <header className="border-b border-hairline bg-surface-soft px-4 py-3 md:px-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-3">
-                <div className="grid size-11 place-items-center rounded-md border border-emerald-300/30 bg-emerald-400/10 shadow-neon-green">
-                  <Hexagon className="size-5 text-emerald-200" />
+                <div className="grid size-11 place-items-center rounded-lg border border-hairline bg-surface-card">
+                  <Hexagon className="size-5 text-primary" />
                 </div>
                 <div>
-                  <div className="font-mono text-[11px] uppercase tracking-[0.32em] text-cyan-200">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.32em] text-primary">
                     EcoChain-AI / Degree-Level Ecology LMS
                   </div>
-                  <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-50 md:text-3xl">
+                  <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink md:text-3xl">
                     Ecosystem Sandbox & Research Desk
                   </h1>
                 </div>
               </div>
 
               {/* Main Curriculum navigation tabs */}
-              <div className="flex flex-wrap items-center gap-2 bg-slate-900 border border-slate-800 p-1 rounded-lg">
+              <div className="flex flex-wrap items-center gap-1.5 bg-surface-soft border border-hairline p-1 rounded-lg">
                 {[
                   ["trophic", "Trophic Dynamics"],
                   ["energy", "Energy Flow"],
@@ -878,8 +973,8 @@ export function EcoChainDashboard() {
                       onClick={() => setCurriculumTab(tabKey)}
                       className={`px-3 py-1.5 rounded text-xs font-mono transition-all ${
                         curriculumTab === tabKey
-                          ? "bg-cyan-500/15 border border-cyan-400/35 text-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.15)]"
-                          : "text-slate-400 hover:text-slate-200 border border-transparent"
+                          ? "bg-surface-card border border-hairline/40 text-ink"
+                          : "text-muted hover:text-ink border border-transparent"
                       }`}
                     >
                       {label}
@@ -898,8 +993,8 @@ export function EcoChainDashboard() {
                   }}
                   className={`px-3 py-2 rounded-md border text-xs font-mono uppercase tracking-wider flex items-center gap-2 transition ${
                     selectedLab
-                      ? "bg-emerald-500/15 border-emerald-400 text-emerald-200 shadow-neon-green"
-                      : "border-slate-700 bg-slate-900 hover:border-cyan-300/40 text-slate-300"
+                      ? "bg-primary border-primary text-on-primary font-semibold"
+                      : "border-hairline bg-surface-card hover:bg-surface-elevated text-ink"
                   }`}
                 >
                   <FlaskConical className="size-4" />
@@ -911,20 +1006,22 @@ export function EcoChainDashboard() {
 
           <section className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 md:p-5 min-h-0">
             {/* Left Sidebar Panel */}
-            <aside className="lg:col-span-1 rounded-md border border-cyan-300/15 bg-slate-950/60 p-4 backdrop-blur flex flex-col justify-between space-y-4">
+            <aside className="lg:col-span-1 rounded-lg border border-hairline bg-surface-card p-4 flex flex-col justify-between space-y-4">
               {/* Biome Selector */}
-              <div className="bg-slate-950/50 border border-slate-900 p-3 rounded">
-                <label className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Selected Habitat Biome</label>
+              <div className="bg-surface-soft border border-hairline p-3 rounded-md">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-muted">Selected Habitat Biome</label>
                 <select
                   value={biome}
                   onChange={(e) => {
                     const val = e.target.value;
                     setBiome(val);
-                    setSpecies(JSON.parse(JSON.stringify(defaultSpecies[val])));
+                    const newSpecies = JSON.parse(JSON.stringify(defaultSpecies[val]));
+                    setSpecies(newSpecies);
                     setCorridorY(null);
                     setActivePreset("custom");
+                    triggerSimulation(controls, val, newSpecies, linkStrength, null, "custom");
                   }}
-                  className="mt-1.5 w-full bg-slate-900/80 border border-cyan-300/15 rounded px-2.5 py-1.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-300/50 cursor-pointer"
+                  className="mt-1.5 w-full bg-surface-card border border-hairline rounded px-2.5 py-1.5 text-xs text-primary font-mono focus:outline-none focus:border-primary cursor-pointer"
                 >
                   <option value="forest">🌲 Temperate Forest</option>
                   <option value="marine">🌊 Coastal Marine</option>
@@ -941,12 +1038,12 @@ export function EcoChainDashboard() {
                 </TabsList>
                 
                 <TabsContent value="biotic" className="flex-1 overflow-y-auto pr-1 space-y-2.5 mt-2">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted mb-1">
                     Species Active Toggles & Initial Density
                   </div>
                   
                   {species.map((sp, idx) => (
-                    <div key={sp.id} className={`p-2.5 border rounded transition ${sp.active ? "border-cyan-500/25 bg-slate-900/20" : "border-slate-900/50 bg-slate-950/20 opacity-60"}`}>
+                    <div key={sp.id} className={`p-2.5 border rounded transition ${sp.active ? "border-primary/20 bg-surface-elevated" : "border-hairline bg-surface-soft/40 opacity-60"}`}>
                       <div className="flex items-center justify-between mb-1">
                         <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
                           <input
@@ -957,14 +1054,14 @@ export function EcoChainDashboard() {
                               setSpecies(prev => prev.map((s, i) => i === idx ? { ...s, active: checked } : s));
                               setActivePreset("custom");
                             }}
-                            className="accent-cyan-400 rounded border-slate-700 bg-slate-900 cursor-pointer"
+                            className="accent-primary rounded border-hairline bg-surface-card cursor-pointer"
                           />
-                          <span className="capitalize text-slate-200">{sp.name}</span>
+                          <span className="capitalize text-body">{sp.name}</span>
                         </label>
                         <span className={`text-[8px] font-mono px-1 rounded-sm uppercase tracking-wider ${
-                          sp.trophic_level === "Producer" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" :
-                          sp.trophic_level === "Herbivore" ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/20" :
-                          "bg-amber-500/15 text-amber-400 border border-amber-500/20"
+                          sp.trophic_level === "Producer" ? "bg-accent-emerald/15 text-accent-emerald border border-accent-emerald/20" :
+                          sp.trophic_level === "Herbivore" ? "bg-accent-blue/15 text-accent-blue border border-accent-blue/20" :
+                          "bg-primary/15 text-primary border border-primary/20"
                         }`}>
                           {sp.trophic_level}
                         </span>
@@ -983,9 +1080,9 @@ export function EcoChainDashboard() {
                               setSpecies(prev => prev.map((s, i) => i === idx ? { ...s, initial_pop: val } : s));
                               setActivePreset("custom");
                             }}
-                            className="w-full accent-cyan-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                            className="w-full accent-primary h-1 bg-hairline rounded-lg appearance-none cursor-pointer"
                           />
-                          <span className="text-[10px] font-mono text-cyan-300 min-w-[32px] text-right">
+                          <span className="text-[10px] font-mono text-primary min-w-[32px] text-right">
                             {Math.round(sp.initial_pop)}
                           </span>
                         </div>
@@ -1068,16 +1165,29 @@ export function EcoChainDashboard() {
               </Tabs>
 
               {/* Simulation Progress playback toolbar */}
-              <div className="border-t border-slate-900 pt-4 space-y-3">
+              <div className="border-t border-hairline pt-4 space-y-3">
+                <button
+                  onClick={() => triggerSimulation()}
+                  disabled={isLoading}
+                  className={`w-full py-2.5 rounded font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition border ${
+                    isDirty
+                      ? "bg-primary hover:bg-primary-active border-primary text-on-primary font-semibold animate-pulse"
+                      : "bg-surface-card hover:bg-surface-elevated border-hairline text-muted"
+                  }`}
+                >
+                  <Cpu className="size-4" />
+                  {isLoading ? "Running..." : isDirty ? "Run Simulation *" : "Simulation Up-To-Date"}
+                </button>
+
                 <div className="flex items-center justify-between font-mono text-xs">
-                  <span className="text-slate-500">Timeline Scope:</span>
-                  <span className="text-cyan-300 font-bold">Year {currentYear} / 29</span>
+                  <span className="text-muted">Timeline Scope:</span>
+                  <span className="text-primary font-bold">Year {currentYear} / 29</span>
                 </div>
                 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="flex-1 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 py-2 rounded text-cyan-300 transition flex items-center justify-center gap-1.5"
+                    className="flex-1 bg-primary hover:bg-primary-active border border-primary py-2 rounded text-on-primary font-semibold transition flex items-center justify-center gap-1.5"
                   >
                     {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
                     {isPlaying ? "Pause" : "Play"}
@@ -1088,7 +1198,7 @@ export function EcoChainDashboard() {
                       setIsPlaying(false);
                       setCurrentYear(0);
                     }}
-                    className="bg-slate-900 hover:bg-slate-800 border border-slate-800 p-2 rounded text-slate-300 transition"
+                    className="bg-surface-card hover:bg-surface-elevated border border-hairline p-2 rounded text-ink transition"
                     title="Reset Timeline"
                   >
                     <RotateCcw className="size-3.5" />
@@ -1098,7 +1208,7 @@ export function EcoChainDashboard() {
             </aside>
 
             {/* Central Dashboard Workstation */}
-            <section className="lg:col-span-3 rounded-md border border-cyan-300/15 bg-slate-950/40 p-4 backdrop-blur flex flex-col min-h-0 relative">
+            <section className="lg:col-span-3 rounded-lg border border-hairline bg-surface-card p-4 flex flex-col min-h-0 relative">
               {isLoading && timeline.length === 0 && (
                 <div className="absolute inset-0 z-30 grid place-items-center bg-slate-950/70">
                   <div className="flex flex-col items-center gap-3 font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">
@@ -1111,22 +1221,22 @@ export function EcoChainDashboard() {
               {/* Trophic Dynamics Tab */}
               {curriculumTab === "trophic" && (
                 <Tabs defaultValue="map" className="flex flex-col h-full min-h-0">
-                  <div className="flex items-center justify-between border-b border-slate-850 pb-2 mb-3">
+                  <div className="flex items-center justify-between border-b border-hairline pb-2 mb-3">
                     <TabsList>
-                      <TabsTrigger value="map" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200">
+                      <TabsTrigger value="map" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5">
                         <MapIcon className="size-3" /> Population Map
                       </TabsTrigger>
-                      <TabsTrigger value="chart" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200">
+                      <TabsTrigger value="chart" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5">
                         <Activity className="size-3" /> Trajectory Chart
                       </TabsTrigger>
-                      <TabsTrigger value="stability" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200">
+                      <TabsTrigger value="stability" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5">
                         <Network className="size-3" /> Stability & Eigenvalues
                       </TabsTrigger>
                     </TabsList>
                     
                     {/* Disturbance Paintbrush Selector */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-slate-500 uppercase">Disturbance Brush:</span>
+                      <span className="text-[10px] font-mono text-muted uppercase">Disturbance Brush:</span>
                       <select 
                         value={selectedTool}
                         onChange={(e) => {
@@ -1137,7 +1247,7 @@ export function EcoChainDashboard() {
                             setDisturbanceCells([]);
                           }
                         }}
-                        className="bg-slate-900 border border-slate-800 rounded text-xs text-orange-400 font-mono px-2 py-1 focus:outline-none"
+                        className="bg-surface-card border border-hairline rounded text-xs text-primary font-mono px-2 py-1 focus:outline-none"
                       >
                         <option value="None">None (Inspect)</option>
                         <option value="fire">🔥 Wildfire Brush</option>
@@ -1147,7 +1257,7 @@ export function EcoChainDashboard() {
                       {disturbanceCells.length > 0 && (
                         <button
                           onClick={() => setDisturbanceCells([])}
-                          className="px-2 py-1 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded text-[10px] font-mono text-slate-400"
+                          className="px-2 py-1 bg-surface-soft border border-hairline hover:bg-surface-elevated rounded text-[10px] font-mono text-ink"
                         >
                           Clear ({disturbanceCells.length})
                         </button>
@@ -1157,17 +1267,17 @@ export function EcoChainDashboard() {
 
                   <TabsContent value="map" className="flex-1 flex flex-col min-h-0 focus:outline-none mt-0">
                     <div className="flex-1 flex flex-col md:flex-row gap-4 h-full min-h-0">
-                      <div className="flex-1 flex items-center justify-center p-3 bg-slate-950/40 border border-slate-800/40 rounded-lg relative min-h-[340px]">
+                      <div className="flex-1 flex items-center justify-center p-3 bg-canvas border border-hairline rounded-lg relative min-h-[340px]">
                         <AnimatePresence>
                           {isLoading && (
                             <motion.div
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
-                              className="absolute inset-0 z-20 grid place-items-center bg-slate-950/50 backdrop-blur-sm"
+                              className="absolute inset-0 z-20 grid place-items-center bg-canvas/70 backdrop-blur-sm"
                             >
-                              <div className="flex items-center gap-3 rounded border border-cyan-300/20 bg-slate-950/90 px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-cyan-100">
-                                <Loader2 className="size-4 animate-spin" />
+                              <div className="flex items-center gap-3 rounded border border-hairline bg-surface-card px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-primary">
+                                <Loader2 className="size-4 animate-spin text-primary" />
                                 Solving ecosystem matrix
                               </div>
                             </motion.div>
@@ -1319,19 +1429,19 @@ export function EcoChainDashboard() {
                         </svg>
                       </div>
                       
-                      <div className="w-full md:w-[200px] flex flex-col justify-between border-t md:border-t-0 md:border-l border-cyan-300/10 p-4 bg-slate-900/20 rounded-r-lg">
+                      <div className="w-full md:w-[200px] flex flex-col justify-between border-t md:border-t-0 md:border-l border-hairline p-4 bg-surface-soft rounded-r-lg">
                         <div className="overflow-y-auto max-h-[360px]">
-                          <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-cyan-300 mb-3">
-                            <Satellite className="size-3.5 text-cyan-300 animate-pulse" />
+                          <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-primary mb-3">
+                            <Satellite className="size-3.5 text-primary animate-pulse" />
                             Spatial Telemetry
                           </div>
                           {hoveredCell || selectedCell ? (
                             <div className="space-y-4">
                               <div>
-                                <div className="font-semibold text-sm text-slate-200">
-                                  Coordinate: <span className="font-mono text-cyan-300">[{hoveredCell?.x ?? selectedCell?.x}, {hoveredCell?.y ?? selectedCell?.y}]</span>
+                                <div className="font-semibold text-sm text-body">
+                                  Coordinate: <span className="font-mono text-primary">[{hoveredCell?.x ?? selectedCell?.x}, {hoveredCell?.y ?? selectedCell?.y}]</span>
                                 </div>
-                                <div className="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider">
+                                <div className="text-[10px] text-muted font-mono mt-0.5 uppercase tracking-wider">
                                   {hoveredCell ? "Hover Focus" : "Selected Target"}
                                 </div>
                               </div>
@@ -1906,7 +2016,7 @@ export function EcoChainDashboard() {
                             </div>
                           ) : (
                             <div className="text-xs text-slate-500 italic py-6 leading-5">
-                              Hover or click cells to monitor stoichiometric distributions. Liebig's Law dictates producer growth based on the scarcest of these three pools.
+                              Hover or click cells to monitor stoichiometric distributions. Liebig&apos;s Law dictates producer growth based on the scarcest of these three pools.
                             </div>
                           )}
                         </div>
@@ -2048,10 +2158,10 @@ export function EcoChainDashboard() {
                           }
                         }}
                         disabled={selectedProducers.length === 0 || isBatchRunning}
-                        className={`w-full py-2.5 rounded font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition ${
+                        className={`w-full py-2.5 rounded font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition border ${
                           selectedProducers.length === 0 || isBatchRunning
-                            ? "bg-slate-900 text-slate-600 border border-slate-850 cursor-not-allowed"
-                            : "bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/35 text-emerald-300 shadow-neon-green"
+                            ? "bg-primary-disabled text-muted border-hairline cursor-not-allowed opacity-50"
+                            : "bg-primary hover:bg-primary-active border-primary text-on-primary font-semibold"
                         }`}
                       >
                         {isBatchRunning ? (
@@ -2167,7 +2277,7 @@ export function EcoChainDashboard() {
                 <div className="flex-1 flex flex-col min-h-0 space-y-4 overflow-y-auto">
                   <div className="mb-2 pb-2 border-b border-cyan-300/15">
                     <h3 className="text-sm font-mono font-semibold text-cyan-200 uppercase tracking-wider flex items-center gap-2">
-                      <Flame className="size-4 text-amber-400" /> Energy Flow & Lindeman's Efficiency
+                      <Flame className="size-4 text-amber-400" /> Energy Flow & Lindeman&apos;s Efficiency
                     </h3>
                     <p className="text-[10px] text-slate-500 mt-0.5">
                       Visualize gross primary production, respiratory losses, and 10% trophic transfer efficiency across the food chain. Based on Lindeman (1942).
@@ -2823,7 +2933,7 @@ export function EcoChainDashboard() {
                           </ResponsiveContainer>
                         ) : (
                           <div className="text-xs text-slate-500 font-mono italic text-center p-8">
-                            Awaiting hysteresis activation. Click "Initiate Loading Loop" to run the forward and backward phosphorus ramp and observe alternative stable states.
+                            Awaiting hysteresis activation. Click &quot;Initiate Loading Loop&quot; to run the forward and backward phosphorus ramp and observe alternative stable states.
                           </div>
                         )}
                       </div>
@@ -3016,7 +3126,7 @@ export function EcoChainDashboard() {
                     }}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-sm text-cyan-200 font-mono focus:outline-none"
                   >
-                    <option value="may-stability">1. May's Complexity Paradox</option>
+                    <option value="may-stability">1. May&apos;s Complexity Paradox</option>
                     <option value="competitive">2. Competitive Exclusion</option>
                     <option value="rescue">3. Metapopulation Rescue</option>
                     <option value="eutrophication">4. Eutrophication Dead Zones</option>
@@ -3031,7 +3141,7 @@ export function EcoChainDashboard() {
                 {selectedLab === "may-stability" && (
                   <div className="space-y-4 text-slate-300 text-xs leading-5">
                     <div>
-                      <h4 className="font-semibold text-sm text-cyan-200 mb-1">Robert May's Complexity Limit</h4>
+                      <h4 className="font-semibold text-sm text-cyan-200 mb-1">Robert May&apos;s Complexity Limit</h4>
                       <p className="opacity-90">
                         In 1972, Robert May mathematically proved that complex food webs (high species count S and connectance C) become unstable if interaction strength exceeds a threshold.
                       </p>
@@ -3101,14 +3211,14 @@ export function EcoChainDashboard() {
                     <div>
                       <h4 className="font-semibold text-sm text-cyan-200 mb-1">Competitive Exclusion Principle</h4>
                       <p className="opacity-90">
-                        Gause's Law states that two species competing for the exact same limiting resource cannot coexist. One will eventually dominate, forcing the other to extinction.
+                        Gause&apos;s Law states that two species competing for the exact same limiting resource cannot coexist. One will eventually dominate, forcing the other to extinction.
                       </p>
                     </div>
 
                     <div className="bg-slate-900/40 border border-slate-800 p-3 rounded space-y-2">
                       <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">Mission Target</div>
                       <p className="opacity-90">
-                        Observe Gause's Law. With both Rabbits and Deer active in the Temperate Forest, simulate their competition for grass until one species is driven to extinction.
+                        Observe Gause&apos;s Law. With both Rabbits and Deer active in the Temperate Forest, simulate their competition for grass until one species is driven to extinction.
                       </p>
                     </div>
 
@@ -3169,7 +3279,7 @@ export function EcoChainDashboard() {
                     <div>
                       <h4 className="font-semibold text-sm text-cyan-200 mb-1">Source-Sink Metapopulations</h4>
                       <p className="opacity-90">
-                        Metapopulations exist across fragmented patches. High-quality habitat 'sources' supply excess individuals that disperse and rescue populations in low-quality 'sinks' which would otherwise go extinct.
+                        Metapopulations exist across fragmented patches. High-quality habitat &ldquo;sources&rdquo; supply excess individuals that disperse and rescue populations in low-quality &ldquo;sinks&rdquo; which would otherwise go extinct.
                       </p>
                     </div>
 

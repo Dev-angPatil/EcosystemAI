@@ -418,7 +418,7 @@ def run_simulation(
                 
                 # Check for hypoxia
                 total_producer_biomass = sum(state[sp.id] for sp in active_sp if sp.trophic_level == "Producer")
-                is_hypoxic = total_producer_biomass > 800.0
+                is_hypoxic = bool(total_producer_biomass > 800.0)
                 new_cell_hypoxic_grid[(x, y)] = is_hypoxic
                 
                 # Solve photosynthesis and stomatal conductance for this cell

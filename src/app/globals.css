@@ -22,7 +22,8 @@ body {
 }
 
 ::selection {
-  background: rgba(34, 211, 238, 0.32);
+  background: rgba(250, 255, 105, 0.32);
+  color: #ffffff;
 }
 
 .scanline::before {
@@ -30,15 +31,15 @@ body {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  background: linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+  background: linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px);
   background-size: 100% 6px;
   mix-blend-mode: screen;
-  opacity: 0.36;
+  opacity: 0.1;
 }
 
 .chart-grid {
   background-image:
-    linear-gradient(rgba(34, 211, 238, 0.09) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px);
+    linear-gradient(rgba(42, 42, 42, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 42, 42, 0.3) 1px, transparent 1px);
   background-size: 40px 40px;
 }
