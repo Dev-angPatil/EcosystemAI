@@ -105,7 +105,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   disturbanceCells: [],
   selectedTool: "None",
 
-  curriculumTab: "trophic",
+  curriculumTab: "physiology",
 
   selectedLab: null,
   quizAnswers: {},

@@ -1,13 +1,13 @@
-# EcosystemAI — Hackathon Presentation & Live Demo Guide
+# EcosystemAI — Hackathon Presentation & Live Demo Guide (Academic Focus)
 
-This presentation guide is structured in the high-impact 4-part hackathon pitch format. Use this script to showcase **EcosystemAI** to the judges.
+This presentation guide is structured in the high-impact 4-part hackathon pitch format, optimized for academic impact. Use this script to showcase **EcosystemAI** to the judges.
 
 ---
 
 ## 1. The Problem — ~20 seconds 🎯
 
 **Pitch (1 sentence):**
-> "For ecology educators and conservation agencies struggling with fragmented models, EcosystemAI consolidates canopy physiology, trophic food webs, and soil biogeochemistry into a single interactive digital twin, replacing abstract differential equations with immediate visual feedback."
+> "For university ecology professors and students struggling with static, offline spreadsheets, EcosystemAI transforms complex, multi-scale biophysical models—like leaf-level photosynthesis equations and lake-level bifurcation curves—into an interactive, real-time digital classroom workstation."
 
 ---
 
@@ -15,32 +15,36 @@ This presentation guide is structured in the high-impact 4-part hackathon pitch 
 
 *Show the application running live on screen. Do not show slides. Click buttons and show real-time updates.*
 
-* **Select Biome & Run (0s - 30s)**:
-  * **Action**: Point to the ClickHouse-inspired layout. Click the **Biome** dropdown and switch from **Temperate Forest** to **Coastal Marine**. Click **Run Simulation**.
-  * **Script**: *"We start in our 3-pane workstation. Changing the biome instantly reloads our species interactions, and hitting 'Run Simulation' sends the ODE solver workload to the cloud. As we play the timeline, notice the SVG food web nodes expanding and contracting based on biomass density, with animated particles tracing energy flows in real time."*
+* **Canopy Physiology & Environmental Sliders (0s - 35s)**:
+  * **Action**: Start on the **Canopy Physiology** tab. Point to the 3-pane layout: Left Controls, Center Workstation, Right Socratic AI Coach. Drag the **Average Temperature** slider to 38°C and **Relative Humidity** to 12%.
+  * **Script**: *"We start in our 3-pane digital lab. Under Canopy Physiology, we drag temperature up and humidity down to trigger a heat wave. In real-time, the guard cell stoma simulator closes its pore as stomatal conductance drops to prevent transpiration. Below, the Farquhar assimilation curves redraw instantly, showing net assimilation ($A_{net}$) tracing Rubisco and light limitations, and triggering a C3 photorespiration stress warning."*
 
-* **Canopy Physiology & Drought Stress (30s - 60s)**:
-  * **Action**: Click the **Canopy Physiology** tab. Drag **Average Temperature** slider to 38°C and **Relative Humidity** to 12%.
-  * **Script**: *"Next, let's trigger a drought. Watch the guard cell stoma simulator shut its pore in real time as calculated stomatal conductance drops to zero. Below, our Farquhar curves redraw instantly, with the net assimilation line tracing Rubisco and light limitations, and firing a red photorespiration stress warning."*
+* **Photosynthetic Pathway Adaptations (35s - 50s)**:
+  * **Action**: In the Left Sidebar under Species, click on **Grass** and change its pathway from **C3** to **C4**.
+  * **Script**: *"Students can test evolutionary adaptations. By switching the species pathway from C3 to C4, the stoma dynamically re-opens under high temperature, showcasing how carbon concentration mechanisms optimize Water-Use Efficiency (WUE) under heat stress."*
 
-* **Soil Biogeochemistry & Liebig's Law (60s - 90s)**:
-  * **Action**: Click the **Soil & Biogeochemistry** tab. Drag **Soil Nitrogen** slider down to 5%.
-  * **Script**: *"Now look at the Soil Biogeochemistry pane. In our Century kinetic model, you can see carbon and nitrogen flowing through active, slow, and passive pools. By plunging soil nitrogen, Liebig's Law of the Minimum index drops, limiting plant growth and triggering a red nitrogen warning. On the right, our real-time Socratic AI Coach diagnoses this trophic cascade and guides our next run."*
+* **Shallow Lake Hysteresis Loop (50s - 75s)**:
+  * **Action**: Click the **Lake Hysteresis Lab** tab. Click **Initiate Loading Loop**.
+  * **Script**: *"Next, we explore bifurcation theory. We initiate a nutrient loading loop. The simulator sweeps phosphorus levels up and down, drawing the forward and backward hysteresis curves. It visually demonstrates why recovering a turbid, algae-choked lake requires dropping nutrient levels far below the initial tipping point, teaching complex non-linear dynamics."*
+
+* **Literature Corner & Socratic AI Partner (75s - 90s)**:
+  * **Action**: Click **Literature Corner**. Point to the fetched papers. Click **Inject Rates** on a paper. Point to the Socratic AI Coach on the right.
+  * **Script**: *"Finally, we connect classroom theory to real-world research. The Literature Corner pulls papers from OpenAlex and bioRxiv. With one click, we inject published rates directly into our simulation parameters. Meanwhile, our Socratic AI Coach analyzes our actions, diagnosing tipping points and posing conceptual questions to guide the student's next hypothesis."*
 
 ---
 
 ## 3. Your Database Choice — ~30 seconds 🗄️
 
 **Pitch (Why Amazon Aurora DSQL is the right architectural choice):**
-> "EcosystemAI generates 3,000 spatial state records per run, requiring tight coupling between carbon, nitrogen, and phosphorus stoichiometry across grid cells. We chose **Amazon Aurora DSQL (Distributed SQL)** because it was the only database that satisfied our three architectural requirements:
+> "EcosystemAI generates thousands of coupled biophysical records per run, requiring tight conservation of mass stoichiometry (Carbon-Nitrogen-Phosphorus ratios) across ecosystem states. We chose **Amazon Aurora DSQL (Distributed SQL)** because it was the only database that satisfied our three architectural requirements:
 >
-> 1. **Relational ACID Transactions**: To enforce physical conservation of mass laws across coupled chemical equations, we need strict multi-row transaction guarantees that NoSQL databases cannot reliably enforce.
-> 2. **Active-Active Distributed Writes**: For collaborative classrooms or regional digital twins with hundreds of concurrent users, Aurora DSQL allows students globally to write to the database simultaneously with sub-millisecond local latency and zero replication lag.
-> 3. **Scale-to-Zero Serverless**: Our usage is highly bursty—spiking during lab hours and dropping to zero overnight. DSQL matches this profile perfectly, giving us production-grade durability while eliminating idle server costs."
+> 1. **Relational ACID Transactions**: To enforce physical conservation laws across coupled equations, we require strict multi-row relational integrity that NoSQL databases cannot reliably guarantee.
+> 2. **Active-Active Distributed Writes**: In a classroom setting with hundreds of students running simulation sweeps concurrently, Aurora DSQL allows students globally to write to the database simultaneously with sub-millisecond local latency and zero replication lag.
+> 3. **Scale-to-Zero Serverless**: Student usage is highly bursty—spiking during lab hours and dropping to zero overnight. DSQL matches this profile perfectly, eliminating idle server costs while scaling instantly."
 
 ---
 
 ## 4. The "So What" — ~20 seconds 🚀
 
 **Pitch (Value & scale potential):**
-> "EcosystemAI replaces static, offline spreadsheets with a collaborative, cloud-scale workspace for the world's 25,000+ environmental science departments. By proving we can run complex ecological digital twins on a serverless AWS and Vercel stack, we are making high-fidelity environmental modeling accessible to any researcher or student on Earth."
+> "EcosystemAI replaces outdated, static worksheets with a cloud-scale interactive learning environment for the world's 25,000+ university environmental science programs. By proving we can run high-fidelity biophysical digital twins on a serverless AWS and Vercel stack, we are bringing active, research-grade systems thinking to the next generation of environmental scientists."

@@ -3,7 +3,7 @@ import { Hexagon, FlaskConical } from "lucide-react";
 import { useSimulationStore } from "../store";
 
 export function DashboardHeader() {
-  const curriculumTab = useSimulationStore((state) => state.curriculumTab || "trophic");
+  const curriculumTab = useSimulationStore((state) => state.curriculumTab || "physiology");
   const setCurriculumTab = useSimulationStore((state) => state.setCurriculumTab || (() => {}));
   const selectedLab = useSimulationStore((state) => state.selectedLab);
   const setSelectedLab = useSimulationStore((state) => state.setSelectedLab);
@@ -28,15 +28,7 @@ export function DashboardHeader() {
 
         <div className="flex flex-wrap items-center gap-1.5 bg-surface-soft border border-hairline p-1 rounded-lg">
           {[
-            ["trophic", "Trophic Dynamics"],
-            ["energy", "Energy Flow"],
             ["physiology", "Canopy Physiology"],
-            ["hydrology", "Hydrology & Energy"],
-            ["biogeochem", "Soil & Biogeochemistry"],
-            ["biodiversity", "Biodiversity Lab"],
-            ["population", "Population Dynamics"],
-            ["human", "Human Impact"],
-            ["climate", "Climate Futures"],
             ["hysteresis", "Lake Hysteresis Lab"],
             ["literature", "Literature Corner"],
           ].map(([tabKey, label]) => {
@@ -59,9 +51,9 @@ export function DashboardHeader() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
-              setSelectedLab(selectedLab ? null : "may-stability");
+              setSelectedLab(selectedLab ? null : "physiology-wue");
               if (!selectedLab) {
-                startLab("may-stability");
+                startLab("physiology-wue");
               }
             }}
             className={`px-3 py-2 rounded-md border text-caption-uppercase flex items-center gap-2 transition ${

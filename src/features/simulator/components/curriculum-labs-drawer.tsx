@@ -302,7 +302,7 @@ export function CurriculumLabsDrawer({
   }, [timeline, species, stability, linkStrength, biome, corridorY, eutrophicationPulse, climateWarmingRate, toxinInfluxRate, controls, hysteresisData]);
 
   const passedCount = Object.keys(quizPassed).filter(k => quizPassed[k] === true).length;
-  const totalLabs = 8;
+  const totalLabs = 2;
 
   const renderQuiz = (labId: string, questions: Array<{ q: string; opts: string[]; ans: number }>) => {
     const isSubmitted = quizSubmitted[labId] === true;
@@ -444,7 +444,7 @@ export function CurriculumLabsDrawer({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Active Challenge</label>
                 <select
-                  value={selectedLab}
+                  value={selectedLab ?? "physiology-wue"}
                   onChange={(e) => {
                     const lab = e.target.value;
                     setSelectedLab(lab);
@@ -452,14 +452,8 @@ export function CurriculumLabsDrawer({
                   }}
                   className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-sm text-cyan-200 font-mono focus:outline-none"
                 >
-                  <option value="may-stability">1. May&apos;s Complexity Paradox</option>
-                  <option value="competitive">2. Competitive Exclusion</option>
-                  <option value="rescue">3. Metapopulation Rescue</option>
-                  <option value="eutrophication">4. Eutrophication Dead Zones</option>
-                  <option value="climate-toxins">5. Climate shifts & Biomagnification</option>
-                  <option value="physiology-wue">6. Canopy Physiology & WUE</option>
-                  <option value="lake-hysteresis">7. Shallow Lake Hysteresis</option>
-                  <option value="som-kinetics">8. Soil Carbon Multi-Pool Kinetics</option>
+                  <option value="physiology-wue">1. Canopy Physiology & WUE</option>
+                  <option value="lake-hysteresis">2. Shallow Lake Hysteresis</option>
                 </select>
               </div>
 
@@ -981,7 +975,7 @@ export function CurriculumLabsDrawer({
                   <span>🎓 All labs certified! Curriculum Complete!</span>
                   <button 
                     onClick={() => {
-                      alert("🎓 ECOCHAIN-AI LMS CERTIFICATE OF COMPLETION\n\nStudent has successfully passed all 8 university-level ecology laboratory examinations:\n1. Robert May's Complexity Limit (Certified)\n2. Gause's Competitive Exclusion (Certified)\n3. Metapopulation Source-Sink Connectivity (Certified)\n4. Eutrophication Algal Blooms & Hypoxia (Certified)\n5. Climate Warming & Methylmercury Biomagnification (Certified)\n6. Canopy Physiology & Water Use Efficiency (Certified)\n7. Shallow Lake Phosphorus Hysteresis (Certified)\n8. Soil Organic Carbon & Century Kinetics (Certified)\n\nGPA: 4.0 / 4.0\nEcosystemAI Registrar.");
+                      alert("🎓 ECOCHAIN-AI LMS CERTIFICATE OF COMPLETION\n\nStudent has successfully passed all university-level ecology laboratory examinations:\n1. Canopy Physiology & Water Use Efficiency (Certified)\n2. Shallow Lake Phosphorus Hysteresis (Certified)\n\nGPA: 4.0 / 4.0\nEcosystemAI Registrar.");
                     }}
                     className="px-2 py-1 bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 rounded transition"
                   >
