@@ -70,6 +70,9 @@ import { TrophicStabilityCharts } from "./trophic-stability-charts";
 import { AICoachPanel } from "./ai-coach-panel";
 import { useSimulationStore } from "../store";
 import { CurriculumLabsDrawer } from "./curriculum-labs-drawer";
+import { TrophicFoodWeb } from "./trophic-food-web";
+import { CanopyPhysiologyView } from "./canopy-physiology-view";
+import { SoilBiogeochemView } from "./soil-biogeochem-view";
 
 const initialAnalysis: CoachAnalysis = {
   ecological_status: "Stable",
@@ -159,76 +162,8 @@ export function EcoChainDashboard() {
   const analysis = storeAnalysis ?? initialAnalysis;
   const stability = storeStability ?? initialStability;
 
-  const [activeNutrientMap, setActiveNutrientMap] = useState<string>("C");
   const [hysteresisData, setHysteresisData] = useState<HysteresisPoint[]>([]);
   const [isHysteresisLoading, setIsHysteresisLoading] = useState<boolean>(false);
-
-  // Local JS compute_photosynthesis for interactive curves
-  const computePhotosynthesisJS = (
-    pathway: "C3" | "C4" | "CAM",
-    Ca: number,
-    Temp: number,
-    RH: number,
-    I: number,
-    soil_moisture: number,
-    growth_rate: number
-  ) => {
-    const f_water = Math.min(1.0, Math.max(0.05, (soil_moisture - 0.08) / (0.30 - 0.08)));
-    const hs = RH / 100.0;
-    const Q10 = 2.0;
-    const Rd = 0.015 * growth_rate * Math.pow(Q10, (Temp - 20.0) / 10.0);
-    
-    let A_net = 0;
-    let a_slope = 9.0;
-    
-    if (pathway === "C3") {
-      const gamma_star = 40.0 + 1.8 * (Temp - 20.0);
-      const Vc_max = growth_rate * 2.5;
-      const Vc = Vc_max * Math.max(0.0, Ca - gamma_star) / (Ca + 736.0);
-      const J_max = Vc_max * 1.8;
-      const J = J_max * I / (I + 500.0);
-      const W_j = (J / 4.0) * Math.max(0.0, Ca - gamma_star) / (Ca + 2.0 * gamma_star);
-      A_net = Math.max(0.0, Math.min(Vc, W_j) - Rd);
-      a_slope = 9.0;
-    } else if (pathway === "C4") {
-      const Vc_max = growth_rate * 2.5;
-      const Vc = Vc_max * Ca / (Ca + 50.0);
-      const J_max = Vc_max * 1.8;
-      const W_j = (J_max * I / (I + 400.0)) * 0.2;
-      A_net = Math.max(0.0, Math.min(Vc, W_j) - Rd);
-      a_slope = 4.0;
-    } else { // CAM
-      const Vc_max = growth_rate * 2.2;
-      const A_raw = (Vc_max * Ca / (Ca + 100.0)) * (0.3 + 0.7 * f_water);
-      A_net = Math.max(0.0, A_raw - Rd);
-      a_slope = 1.5;
-    }
-    
-    const g0 = 0.02;
-    let gs = g0 + a_slope * (A_net * hs / Math.max(100.0, Ca)) * f_water;
-    gs = Math.min(0.6, Math.max(g0, gs));
-    return { A_net, gs };
-  };
-
-  const somData = useMemo(() => {
-    return timeline.map(pt => {
-      const cells = pt.cells || [];
-      const count = cells.length || 1;
-      const active = cells.reduce((sum, c) => sum + (c.som_active_c ?? 0), 0) / count;
-      const slow = cells.reduce((sum, c) => sum + (c.som_slow_c ?? 0), 0) / count;
-      const passive = cells.reduce((sum, c) => sum + (c.som_passive_c ?? 0), 0) / count;
-      const ammonium = cells.reduce((sum, c) => sum + (c.soil_ammonium ?? 0), 0) / count;
-      const nitrate = cells.reduce((sum, c) => sum + (c.soil_nitrate ?? 0), 0) / count;
-      return {
-        year: pt.year,
-        Active: parseFloat(active.toFixed(2)),
-        Slow: parseFloat(slow.toFixed(2)),
-        Passive: parseFloat(passive.toFixed(2)),
-        Ammonium: parseFloat(ammonium.toFixed(3)),
-        Nitrate: parseFloat(nitrate.toFixed(3)),
-      };
-    });
-  }, [timeline]);
 
   const parsedHysteresisData = useMemo(() => {
     if (hysteresisData.length === 0) return [];
@@ -245,9 +180,6 @@ export function EcoChainDashboard() {
       };
     });
   }, [hysteresisData]);
-
-  // Canopy Physiology & Hysteresis states
-  const [selectedProducerId, setSelectedProducerId] = useState<string>("grass");
 
   // Biodiversity Experiment states
   const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
@@ -470,7 +402,7 @@ export function EcoChainDashboard() {
         <div className="relative z-10 flex min-h-[calc(100vh-2rem)] flex-col">
           <DashboardHeader />
 
-          <section className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 md:p-5 min-h-0">
+          <section className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-4 p-4 md:p-5 min-h-0">
             {/* Left Sidebar Panel */}
             <aside className="lg:col-span-1 rounded-lg border border-hairline bg-surface-card p-4 flex flex-col justify-between space-y-4">
               {/* Biome Selector */}
@@ -698,6 +630,9 @@ export function EcoChainDashboard() {
                       <TabsTrigger value="stability" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5">
                         <Network className="size-3" /> Stability & Eigenvalues
                       </TabsTrigger>
+                      <TabsTrigger value="foodweb" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+                        <Network className="size-3" /> Food Web & Biomass
+                      </TabsTrigger>
                     </TabsList>
                     
                     {/* Disturbance Paintbrush Selector */}
@@ -742,206 +677,16 @@ export function EcoChainDashboard() {
                   <TabsContent value="stability" className="flex-1 min-h-0 mt-0 focus:outline-none">
                     <TrophicStabilityCharts />
                   </TabsContent>
+
+                  <TabsContent value="foodweb" className="flex-1 min-h-0 focus:outline-none mt-0">
+                    <TrophicFoodWeb />
+                  </TabsContent>
                 </Tabs>
               )}
 
               {/* Canopy Physiology Tab */}
               {curriculumTab === "physiology" && (
-                <div className="space-y-4 h-full overflow-y-auto pr-1">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Control Card */}
-                    <div className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl space-y-4">
-                      <h3 className="text-sm font-mono text-cyan-200 uppercase tracking-wider">Physiology Controls</h3>
-                      
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-mono text-slate-400 block uppercase">Selected Autotroph:</label>
-                        <select
-                          value={selectedProducerId}
-                          onChange={(e) => setSelectedProducerId(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-850 rounded-lg p-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                        >
-                          {species
-                            .filter(s => s.trophic_level === "Producer" && s.active)
-                            .map(s => (
-                              <option key={s.id} value={s.id}>{s.name}</option>
-                            ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-mono text-slate-400 block uppercase">Photosynthetic Pathway:</label>
-                        <select
-                          value={species.find(s => s.id === selectedProducerId)?.photosynthetic_pathway || "C3"}
-                          onChange={(e) => {
-                            const path = e.target.value as "C3" | "C4" | "CAM";
-                            setSpecies(species.map(s => s.id === selectedProducerId ? { ...s, photosynthetic_pathway: path } : s));
-                          }}
-                          className="w-full bg-slate-950 border border-slate-850 rounded-lg p-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                        >
-                          <option value="C3">C3 Pathway (RuBisCO Standard)</option>
-                          <option value="C4">C4 Pathway (PEPC Spatial Concentration)</option>
-                          <option value="CAM">CAM Pathway (Temporal/Nocturnal Malic)</option>
-                        </select>
-                      </div>
-
-                      {/* Readout stats */}
-                      <div className="border-t border-slate-850 pt-4 space-y-2">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-mono">Net Photosynthesis (A):</span>
-                          <span className="text-emerald-400 font-mono font-bold">
-                            {(() => {
-                              const sel = species.find(s => s.id === selectedProducerId);
-                              const { A_net } = computePhotosynthesisJS(
-                                sel?.photosynthetic_pathway || "C3",
-                                controls.co2 ?? 420.0,
-                                controls.temperature,
-                                controls.relative_humidity ?? 65.0,
-                                controls.light_intensity ?? 800.0,
-                                activePoint?.cells?.length ? activePoint.cells.reduce((sum, c) => sum + (c.soil_moisture ?? 0.15), 0) / activePoint.cells.length : 0.15,
-                                sel?.growth_rate || 0.45
-                              );
-                              return A_net.toFixed(4);
-                            })()} mol C/m²/yr
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-mono">Stomatal Conductance (gs):</span>
-                          <span className="text-cyan-400 font-mono font-bold">
-                            {(() => {
-                              const sel = species.find(s => s.id === selectedProducerId);
-                              const { gs } = computePhotosynthesisJS(
-                                sel?.photosynthetic_pathway || "C3",
-                                controls.co2 ?? 420.0,
-                                controls.temperature,
-                                controls.relative_humidity ?? 65.0,
-                                controls.light_intensity ?? 800.0,
-                                activePoint?.cells?.length ? activePoint.cells.reduce((sum, c) => sum + (c.soil_moisture ?? 0.15), 0) / activePoint.cells.length : 0.15,
-                                sel?.growth_rate || 0.45
-                              );
-                              return gs.toFixed(4);
-                            })()} mol H₂O/m²/s
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-mono">Water Use Efficiency (WUE):</span>
-                          <span className="text-amber-400 font-mono font-bold">
-                            {(() => {
-                              const sel = species.find(s => s.id === selectedProducerId);
-                              const temp = controls.temperature;
-                              const rh = controls.relative_humidity ?? 65.0;
-                              const es = 0.6108 * Math.exp(17.27 * temp / (temp + 237.3));
-                              const vpd = es * (1.0 - rh / 100.0);
-                              const { A_net, gs } = computePhotosynthesisJS(
-                                sel?.photosynthetic_pathway || "C3",
-                                controls.co2 ?? 420.0,
-                                temp,
-                                rh,
-                                controls.light_intensity ?? 800.0,
-                                activePoint?.cells?.length ? activePoint.cells.reduce((sum, c) => sum + (c.soil_moisture ?? 0.15), 0) / activePoint.cells.length : 0.15,
-                                sel?.growth_rate || 0.45
-                              );
-                              return vpd > 0.01 ? (A_net / (gs * vpd)).toFixed(2) : "∞";
-                            })()} μmol/mmol
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Light Curve Chart */}
-                    <div className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl md:col-span-2">
-                      <h3 className="text-sm font-mono text-cyan-200 uppercase tracking-wider mb-2">Photosynthesis Curves</h3>
-                      <Tabs defaultValue="light" className="w-full">
-                        <TabsList className="mb-2">
-                          <TabsTrigger value="light" className="text-[10px] uppercase font-mono">A vs Light (PAR)</TabsTrigger>
-                          <TabsTrigger value="co2" className="text-[10px] uppercase font-mono">A vs CO₂ (Cₐ)</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="light" className="h-[220px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                              data={(() => {
-                                const sel = species.find(s => s.id === selectedProducerId);
-                                const gr = sel?.growth_rate || 0.45;
-                                const sm = activePoint?.cells?.length ? activePoint.cells.reduce((sum, c) => sum + (c.soil_moisture ?? 0.15), 0) / activePoint.cells.length : 0.15;
-                                return Array.from({ length: 21 }).map((_, i) => {
-                                  const par = i * 100;
-                                  const { A_net } = computePhotosynthesisJS(
-                                    sel?.photosynthetic_pathway || "C3",
-                                    controls.co2 ?? 420.0,
-                                    controls.temperature,
-                                    controls.relative_humidity ?? 65.0,
-                                    par,
-                                    sm,
-                                    gr
-                                  );
-                                  return { par, A: parseFloat(A_net.toFixed(4)) };
-                                });
-                              })()}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                              <XAxis dataKey="par" stroke="#64748b" style={{ fontSize: 9 }} label={{ value: "PAR (W/m²)", position: "insideBottom", offset: -2, fill: "#64748b", fontSize: 9 }} />
-                              <YAxis stroke="#64748b" style={{ fontSize: 9 }} label={{ value: "A (mol/m²/yr)", angle: -90, position: "insideLeft", offset: 5, fill: "#64748b", fontSize: 9 }} />
-                              <Tooltip contentStyle={{ background: "#0f172a", borderColor: "#1e293b", fontSize: 10 }} />
-                              <Line type="monotone" dataKey="A" stroke="#10b981" strokeWidth={2} dot={false} />
-                              <ReferenceLine x={controls.light_intensity ?? 800.0} stroke="#eab308" strokeDasharray="3 3" label={{ value: "Current PAR", fill: "#eab308", fontSize: 8, position: "top" }} />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </TabsContent>
-
-                        <TabsContent value="co2" className="h-[220px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                              data={(() => {
-                                const sel = species.find(s => s.id === selectedProducerId);
-                                const gr = sel?.growth_rate || 0.45;
-                                const sm = activePoint?.cells?.length ? activePoint.cells.reduce((sum, c) => sum + (c.soil_moisture ?? 0.15), 0) / activePoint.cells.length : 0.15;
-                                return Array.from({ length: 25 }).map((_, i) => {
-                                  const co2Val = i * 50;
-                                  const { A_net } = computePhotosynthesisJS(
-                                    sel?.photosynthetic_pathway || "C3",
-                                    co2Val,
-                                    controls.temperature,
-                                    controls.relative_humidity ?? 65.0,
-                                    controls.light_intensity ?? 800.0,
-                                    sm,
-                                    gr
-                                  );
-                                  return { co2: co2Val, A: parseFloat(A_net.toFixed(4)) };
-                                });
-                              })()}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                              <XAxis dataKey="co2" stroke="#64748b" style={{ fontSize: 9 }} label={{ value: "Atmospheric CO₂ (ppm)", position: "insideBottom", offset: -2, fill: "#64748b", fontSize: 9 }} />
-                              <YAxis stroke="#64748b" style={{ fontSize: 9 }} label={{ value: "A (mol/m²/yr)", angle: -90, position: "insideLeft", offset: 5, fill: "#64748b", fontSize: 9 }} />
-                              <Tooltip contentStyle={{ background: "#0f172a", borderColor: "#1e293b", fontSize: 10 }} />
-                              <Line type="monotone" dataKey="A" stroke="#06b6d4" strokeWidth={2} dot={false} />
-                              <ReferenceLine x={controls.co2 ?? 420.0} stroke="#ef4444" strokeDasharray="3 3" label={{ value: "Current CO₂", fill: "#ef4444", fontSize: 8, position: "top" }} />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </TabsContent>
-                      </Tabs>
-                    </div>
-                  </div>
-
-                  {/* Pathway comparison notes */}
-                  <div className="bg-slate-900/30 border border-slate-800/40 p-4 rounded-xl">
-                    <h4 className="text-xs font-mono text-slate-300 uppercase mb-2">Pathways Comparison:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono text-slate-400">
-                      <div className="bg-slate-950/40 p-3 rounded-lg border border-slate-900">
-                        <span className="text-emerald-400 block font-bold mb-1">C3 (Standard)</span>
-                        Most land plants. Suffers from photorespiration under low CO₂ or high heat. High optimal water and moderate light saturation.
-                      </div>
-                      <div className="bg-slate-950/40 p-3 rounded-lg border border-slate-900">
-                        <span className="text-cyan-400 block font-bold mb-1">C4 (Warm/Sunny)</span>
-                        Grasses, corn, sugarcane. Concentrates CO₂ in bundle sheath cells. Resilient to drought and high temps; does not photorespire.
-                      </div>
-                      <div className="bg-slate-950/40 p-3 rounded-lg border border-slate-900">
-                        <span className="text-amber-400 block font-bold mb-1">CAM (Xeric/Desert)</span>
-                        Succulents, pineapples, cacti. Opens stomata only at night to fix CO₂ as malate, minimizing daytime evapotranspiration.
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <CanopyPhysiologyView />
               )}
 
               {/* Hydrology & Energy Tab */}
@@ -1106,203 +851,7 @@ export function EcoChainDashboard() {
 
               {/* Biogeochemistry Tab */}
               {curriculumTab === "biogeochem" && (
-                <Tabs defaultValue="nutrients-map" className="flex flex-col h-full min-h-0">
-                  <div className="flex items-center justify-between border-b border-slate-850 pb-2 mb-3">
-                    <TabsList>
-                      <TabsTrigger value="nutrients-map" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200">
-                        <MapIcon className="size-3" /> Nutrient Heatmap
-                      </TabsTrigger>
-                      <TabsTrigger value="nutrients-chart" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200">
-                        <Activity className="size-3" /> Stoichiometry Timeline
-                      </TabsTrigger>
-                      <TabsTrigger value="som-pools" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-200">
-                        <Cpu className="size-3" /> Century Soil Pools
-                      </TabsTrigger>
-                    </TabsList>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-slate-500 uppercase">Soil Pool:</span>
-                      <select 
-                        value={activeNutrientMap}
-                        onChange={(e) => setActiveNutrientMap(e.target.value)}
-                        className="bg-slate-900 border border-slate-800 rounded text-xs text-cyan-300 font-mono px-2 py-1 focus:outline-none"
-                      >
-                        <option value="C">Carbon (C)</option>
-                        <option value="N">Nitrogen (N)</option>
-                        <option value="P">Phosphorus (P)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <TabsContent value="nutrients-map" className="flex-1 flex flex-col min-h-0 focus:outline-none mt-0">
-                    <div className="flex-1 flex flex-col md:flex-row gap-4 h-full min-h-0">
-                      <div className="flex-1 flex items-center justify-center p-3 bg-slate-950/40 border border-slate-800/40 rounded-lg relative min-h-[340px]">
-                        <svg viewBox="0 0 100 100" className="w-full max-w-[420px] aspect-square rounded select-none animate-fade-in">
-                          {Array.from({ length: 10 }).map((_, y) => 
-                            Array.from({ length: 10 }).map((_, x) => {
-                              const cells = activePoint?.cells || [];
-                              const cell = cells.find(c => c.x === x && c.y === y) || { plants: 0, rabbits: 0, wolves: 0, populations: {} as Record<string, number>, nutrients: {} as Record<string, number>, x, y, toxin_concentration: 0, hypoxic: false };
-                              const val = cell.nutrients[activeNutrientMap] ?? 0.0;
-                              
-                              let r = 0, g = 0, b = 0;
-                              if (activeNutrientMap === "C") {
-                                r = Math.min(220, Math.floor(val * 0.45));
-                                g = Math.min(160, Math.floor(val * 0.28));
-                                b = 40;
-                              } else if (activeNutrientMap === "N") {
-                                r = Math.min(150, Math.floor(val * 0.8));
-                                g = 40;
-                                b = Math.min(240, Math.floor(val * 1.5));
-                              } else {
-                                r = 30;
-                                g = Math.min(200, Math.floor(val * 1.8));
-                                b = Math.min(220, Math.floor(val * 2.2));
-                              }
-                              
-                              const opacity = Math.min(0.95, Math.max(0.1, val / 400.0));
-                              const isSelected = selectedCell?.x === x && selectedCell?.y === y;
-                              const isHovered = hoveredCell?.x === x && hoveredCell?.y === y;
-
-                              return (
-                                <rect
-                                  key={`${x}-${y}`}
-                                  x={x * 10}
-                                  y={y * 10}
-                                  width={9.2}
-                                  height={9.2}
-                                  rx={1}
-                                  fill={`rgb(${r}, ${g}, ${b})`}
-                                  fillOpacity={opacity}
-                                  stroke={isSelected ? "#22d3ee" : isHovered ? "rgba(34, 211, 238, 0.4)" : "rgba(34, 211, 238, 0.08)"}
-                                  strokeWidth={isSelected ? 0.8 : isHovered ? 0.6 : 0.2}
-                                  className="cursor-pointer transition-all duration-300 hover:fill-opacity-90"
-                                  onMouseEnter={() => setHoveredCell({ 
-                                    x, 
-                                    y, 
-                                    populations: cell.populations || {}, 
-                                    nutrients: cell.nutrients || {},
-                                    toxin_concentration: cell.toxin_concentration,
-                                    hypoxic: cell.hypoxic 
-                                  })}
-                                  onMouseLeave={() => setHoveredCell(null)}
-                                  onClick={() => {
-                                    setSelectedCell({ x, y });
-                                    setIsPlaying(false);
-                                  }}
-                                />
-                              );
-                            })
-                          )}
-                        </svg>
-                      </div>
-
-                      <div className="w-full md:w-[200px] border-t md:border-t-0 md:border-l border-cyan-300/10 p-4 bg-slate-900/20 rounded-r-lg">
-                        <div className="overflow-y-auto max-h-[360px]">
-                          <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-cyan-300 mb-3">
-                            <Activity className="size-3.5 text-cyan-300" />
-                            Soil Stoichiometry
-                          </div>
-                          {hoveredCell || selectedCell ? (
-                            <div className="space-y-4">
-                              <div>
-                                <div className="font-semibold text-sm text-slate-200">
-                                  Coordinate: <span className="font-mono text-cyan-300">[{hoveredCell?.x ?? selectedCell?.x}, {hoveredCell?.y ?? selectedCell?.y}]</span>
-                                </div>
-                                <div className="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider">
-                                  Local Stocks
-                                </div>
-                              </div>
-                              
-                              <div className="space-y-2.5 font-mono text-xs">
-                                <div className="flex justify-between py-1 border-b border-slate-900">
-                                  <span className="text-amber-500">Carbon (C):</span>
-                                  <span className="text-slate-100 font-bold">{(hoveredCell?.nutrients?.["C"] ?? selectedCellData?.nutrients?.["C"] ?? 0).toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between py-1 border-b border-slate-900">
-                                  <span className="text-violet-500">Nitrogen (N):</span>
-                                  <span className="text-slate-100 font-bold">{(hoveredCell?.nutrients?.["N"] ?? selectedCellData?.nutrients?.["N"] ?? 0).toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between py-1 border-b border-slate-900">
-                                  <span className="text-cyan-500">Phosphorus (P):</span>
-                                  <span className="text-slate-100 font-bold">{(hoveredCell?.nutrients?.["P"] ?? selectedCellData?.nutrients?.["P"] ?? 0).toFixed(2)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-xs text-slate-500 italic py-6 leading-5">
-                              Hover or click cells to monitor stoichiometric distributions. Liebig&apos;s Law dictates producer growth based on the scarcest of these three pools.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="nutrients-chart" className="flex-1 min-h-0 focus:outline-none mt-0 relative">
-                    <div className="w-full h-full min-h-[340px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={timeline}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                          <XAxis dataKey="year" stroke="#64748b" tickLine={false} tick={{ fontSize: 11 }} />
-                          <YAxis stroke="#64748b" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                          <Tooltip />
-                          <Legend wrapperStyle={{ fontSize: 12 }} />
-                          
-                          <Line type="monotone" dataKey="nutrients.C" name="Carbon (C)" stroke="#d97706" strokeWidth={2.5} dot={false} />
-                          <Line type="monotone" dataKey="nutrients.N" name="Nitrogen (N)" stroke="#8b5cf6" strokeWidth={2.5} dot={false} />
-                          <Line type="monotone" dataKey="nutrients.P" name="Phosphorus (P)" stroke="#06b6d4" strokeWidth={2.5} dot={false} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="som-pools" className="flex-1 min-h-[340px] focus:outline-none mt-0 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-                      {/* Stacked Carbon Pools */}
-                      <div className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl flex flex-col justify-between">
-                        <div>
-                          <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider mb-2">Soil Organic Carbon Pools (Century Model)</h3>
-                          <p className="text-[10px] font-mono text-slate-500 mb-3">Decomposition cycles carbon through active (labile), slow (humic), and passive (humus) pools.</p>
-                        </div>
-                        <div className="h-[200px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={somData}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                              <XAxis dataKey="year" stroke="#64748b" style={{ fontSize: 9 }} />
-                              <YAxis stroke="#64748b" style={{ fontSize: 9 }} />
-                              <Tooltip contentStyle={{ background: "#0f172a", borderColor: "#1e293b", fontSize: 10 }} />
-                              <Legend wrapperStyle={{ fontSize: 9, fontFamily: "monospace" }} />
-                              <Area type="monotone" dataKey="Active" name="Active (Labile)" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.25} />
-                              <Area type="monotone" dataKey="Slow" name="Slow (Cellular)" stackId="1" stroke="#a16207" fill="#a16207" fillOpacity={0.25} />
-                              <Area type="monotone" dataKey="Passive" name="Passive (Humified)" stackId="1" stroke="#78350f" fill="#78350f" fillOpacity={0.25} />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      {/* Nitrogen Stocks */}
-                      <div className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl flex flex-col justify-between">
-                        <div>
-                          <h3 className="text-xs font-mono text-cyan-200 uppercase tracking-wider mb-2">Soil Inorganic Nitrogen Stocks</h3>
-                          <p className="text-[10px] font-mono text-slate-500 mb-3">Ammonium (NH₄⁺) is mineralized, nitrified to Nitrate (NO₃⁻), or denitrified under hypoxia.</p>
-                        </div>
-                        <div className="h-[200px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={somData}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                              <XAxis dataKey="year" stroke="#64748b" style={{ fontSize: 9 }} />
-                              <YAxis stroke="#64748b" style={{ fontSize: 9 }} />
-                              <Tooltip contentStyle={{ background: "#0f172a", borderColor: "#1e293b", fontSize: 10 }} />
-                              <Legend wrapperStyle={{ fontSize: 9, fontFamily: "monospace" }} />
-                              <Line type="monotone" dataKey="Ammonium" name="Ammonium (NH₄⁺)" stroke="#a78bfa" strokeWidth={2} dot={false} />
-                              <Line type="monotone" dataKey="Nitrate" name="Nitrate (NO₃⁻)" stroke="#818cf8" strokeWidth={2} dot={false} />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                <SoilBiogeochemView />
               )}
 
               {/* Biodiversity Lab Tab */}
