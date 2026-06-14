@@ -521,10 +521,8 @@ export function EcoChainDashboard() {
                 </TabsList>
                 
                 <TabsContent value="biotic" className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-2.5 mt-2">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted mb-1">
-                    Species Active Toggles & Initial Density
-                  </div>
-                  
+
+
                   {species.map((sp, idx) => (
                     <div key={sp.id} className={`p-2.5 border rounded transition ${sp.active ? "border-primary/20 bg-surface-elevated" : "border-hairline bg-surface-soft/40 opacity-60"}`}>
                       <div className="flex items-center justify-between mb-1">
