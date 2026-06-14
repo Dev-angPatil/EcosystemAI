@@ -21,3 +21,5 @@ api/.pytest_cache/
 api/__pycache__/
 api/app/__pycache__/
 api/tests/__pycache__/
+.vercel
+.env*
