@@ -28,7 +28,12 @@ export function DashboardHeader() {
 
         <div className="flex flex-wrap items-center gap-1.5 bg-surface-soft border border-hairline p-1 rounded-lg">
           {[
+            ["energy", "Energy Flow"],
             ["physiology", "Canopy Physiology"],
+            ["biodiversity", "Biodiversity Lab"],
+            ["population", "Population Dynamics"],
+            ["human", "Human Impact"],
+            ["climate", "Climate Futures"],
             ["hysteresis", "Lake Hysteresis Lab"],
             ["literature", "Literature Corner"],
           ].map(([tabKey, label]) => {
