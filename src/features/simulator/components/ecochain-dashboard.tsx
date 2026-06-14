@@ -65,6 +65,8 @@ import { DashboardHeader } from "./dashboard-header";
 import { Typewriter } from "./typewriter";
 import { ControlSlider } from "./control-slider";
 import { SpatialGridMap } from "./spatial-grid-map";
+import { TrophicTrajectoryChart } from "./trophic-trajectory-chart";
+import { TrophicStabilityCharts } from "./trophic-stability-charts";
 import { useSimulationStore } from "../store";
 
 const initialAnalysis: CoachAnalysis = {
@@ -1071,40 +1073,11 @@ export function EcoChainDashboard() {
                   </TabsContent>
 
                   <TabsContent value="chart" className="flex-1 min-h-0 focus:outline-none mt-0 relative">
-                    <div className="w-full h-full min-h-[340px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={timeline}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                          <XAxis dataKey="year" stroke="#64748b" tickLine={false} tick={{ fontSize: 11 }} />
-                          <YAxis stroke="#64748b" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend wrapperStyle={{ fontSize: 12 }} />
-                          
-                          {activeSpecies.map((sp, sIdx) => (
-                            <Line
-                              key={sp.id}
-                              type="monotone"
-                              dataKey={`populations.${sp.id}`}
-                              name={sp.name}
-                              stroke={`hsl(${sIdx * 45}, 70%, 55%)`}
-                              strokeWidth={2.5}
-                              dot={false}
-                            />
-                          ))}
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <TrophicTrajectoryChart />
                   </TabsContent>
 
                   <TabsContent value="stability" className="flex-1 min-h-0 mt-0 focus:outline-none">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-                      <div className="flex items-center justify-center">
-                        <EigenvaluePlane eigenvalues={stability.eigenvalues} />
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <JacobianMatrix matrix={stability.jacobian} activeSpecies={activeSpecies} />
-                      </div>
-                    </div>
+                    <TrophicStabilityCharts />
                   </TabsContent>
                 </Tabs>
               )}
