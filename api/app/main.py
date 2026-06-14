@@ -1,4 +1,6 @@
+import asyncio
 from fastapi import FastAPI, Depends, Header, HTTPException, Request
+from sse_starlette.sse import EventSourceResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import httpx
@@ -18,7 +20,7 @@ from .schemas import (
     LeslieMatrixRequest,
     LeslieMatrixResponse,
 )
-from .simulation import run_simulation, run_biodiversity_experiment, run_hysteresis_experiment, run_leslie_matrix_projection
+from .simulation import run_simulation, run_biodiversity_experiment, run_hysteresis_experiment, run_leslie_matrix_projection, run_biodiversity_experiment_stream
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="EcoChain-AI API", version="0.1.0")
@@ -103,7 +105,7 @@ async def lit_search(request: Request, query: str, limit: int = 5) -> list[dict]
 @app.post("/simulate", response_model=SimulationResponse, dependencies=[Depends(verify_api_key)])
 @limiter.limit("120/minute")
 async def simulate(request: Request, simulation_request: SimulationRequest) -> SimulationResponse:
-    timeline, params, stability = run_simulation(simulation_request)
+    timeline, params, stability = await asyncio.to_thread(run_simulation, simulation_request)
     analysis = await get_ai_analysis(
         timeline,
         simulation_request.abiotic_factors,
@@ -121,14 +123,20 @@ async def simulate(request: Request, simulation_request: SimulationRequest) -> S
 @app.post("/simulate/biodiversity", response_model=BiodiversityLabResponse, dependencies=[Depends(verify_api_key)])
 @limiter.limit("120/minute")
 async def simulate_biodiversity(request: Request, simulation_request: BiodiversityLabRequest) -> BiodiversityLabResponse:
-    data = run_biodiversity_experiment(simulation_request)
+    data = await asyncio.to_thread(run_biodiversity_experiment, simulation_request)
     return BiodiversityLabResponse(data=data)
+
+
+@app.post("/simulate/biodiversity/stream", dependencies=[Depends(verify_api_key)])
+@limiter.limit("120/minute")
+async def simulate_biodiversity_stream(request: Request, simulation_request: BiodiversityLabRequest):
+    return EventSourceResponse(run_biodiversity_experiment_stream(simulation_request))
 
 
 @app.post("/simulate/hysteresis", response_model=HysteresisResponse, dependencies=[Depends(verify_api_key)])
 @limiter.limit("120/minute")
 async def simulate_hysteresis(request: Request, simulation_request: HysteresisRequest) -> HysteresisResponse:
-    data = run_hysteresis_experiment(simulation_request)
+    data = await asyncio.to_thread(run_hysteresis_experiment, simulation_request)
     return HysteresisResponse(data=data)
 
 
@@ -136,6 +144,7 @@ async def simulate_hysteresis(request: Request, simulation_request: HysteresisRe
 @limiter.limit("120/minute")
 async def simulate_leslie(request: Request, simulation_request: LeslieMatrixRequest) -> LeslieMatrixResponse:
     """Age-structured Leslie matrix population projection."""
-    return run_leslie_matrix_projection(simulation_request)
+    result = await asyncio.to_thread(run_leslie_matrix_projection, simulation_request)
+    return result
 
 

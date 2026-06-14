@@ -992,3 +992,67 @@ def run_leslie_matrix_projection(request: LeslieMatrixRequest) -> LeslieMatrixRe
         stable_age_distribution=stable_age,
         reproductive_value=repro_val,
     )
+
+
+import json
+import asyncio
+
+async def run_biodiversity_experiment_stream(request: BiodiversityLabRequest):
+    from .biomes import BIOMES
+    import random
+    import numpy as np
+    
+    biome_preset = BIOMES.get(request.biome, BIOMES["forest"])
+    requested_ids = set(request.species_ids)
+    all_producers = [sp for sp in biome_preset.species if sp.trophic_level == "Producer" and sp.id in requested_ids]
+    if not all_producers:
+        all_producers = [sp for sp in biome_preset.species if sp.trophic_level == "Producer"]
+        
+    max_richness = min(12, len(all_producers))
+    if max_richness == 0:
+        return
+
+    for richness in range(1, max_richness + 1):
+        # We need to run simulation asynchronously in a thread
+        def run_single():
+            selected_producers = random.sample(all_producers, richness)
+            selected_ids = {sp.id for sp in selected_producers}
+            species_configs = []
+            for sp in biome_preset.species:
+                active = False
+                init_pop = 0.0
+                if sp.trophic_level == "Producer":
+                    if sp.id in selected_ids:
+                        active = True
+                        init_pop = 400.0 / richness
+                else:
+                    active = sp.active
+                    init_pop = sp.initial_pop if sp.active else 0.0
+                species_configs.append(SpeciesConfig(
+                    id=sp.id, name=sp.name, trophic_level=sp.trophic_level,
+                    growth_rate=sp.growth_rate, initial_pop=init_pop, active=active,
+                    thermal_optimum=sp.thermal_optimum, niche_width=sp.niche_width, toxin_level=0.0
+                ))
+            sim_req = SimulationRequest(
+                biome=request.biome, species=species_configs,
+                abiotic_factors=AbioticFactors(rainfall=700.0, temperature=20.0, nitrogen=50.0),
+                link_strength=1.0, corridor_y=None, eutrophication_pulse=False,
+                climate_warming_rate=0.0, toxin_influx_rate=0.0
+            )
+            timeline, _, _ = run_simulation(sim_req)
+            last_point = timeline[-1]
+            tot_yield = sum(last_point.populations.get(sp.id, 0.0) for sp in selected_producers)
+            producer_biomass_history = []
+            for point in timeline[10:]:
+                yr_bio = sum(point.populations.get(sp.id, 0.0) for sp in selected_producers)
+                producer_biomass_history.append(yr_bio)
+            mean_bio = np.mean(producer_biomass_history) if producer_biomass_history else 0.0
+            std_bio = np.std(producer_biomass_history) if producer_biomass_history else 0.0
+            stability = (mean_bio / std_bio) if std_bio > 1e-4 else 50.0
+            stability = min(50.0, max(0.0, stability))
+            return {"richness": richness, "yield_": round(float(tot_yield), 2), "stability": round(float(stability), 2)}
+
+        result = await asyncio.to_thread(run_single)
+        yield f"data: {json.dumps(result)}\n\n"
+        # Small sleep to allow client to process
+        await asyncio.sleep(0.05)

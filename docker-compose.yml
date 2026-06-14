@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - FEATHERLESS_API_KEY=${FEATHERLESS_API_KEY:-}
+      - API_KEY=${API_KEY:-}
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped

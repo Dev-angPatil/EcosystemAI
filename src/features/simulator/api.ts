@@ -79,6 +79,53 @@ export async function fetchBiodiversityExperiment(
   return data.data as BiodiversityLabPoint[];
 }
 
+export async function fetchBiodiversityExperimentStream(
+  biome: string,
+  speciesIds: string[],
+  onData: (data: BiodiversityLabPoint) => void
+): Promise<void> {
+  const response = await fetch(`${apiBaseUrl}/simulate/biodiversity/stream`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      biome,
+      species_ids: speciesIds,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Biodiversity experiment stream failed with ${response.status}`);
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) return;
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || "";
+    
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          const jsonStr = line.substring(6);
+          const data = JSON.parse(jsonStr) as BiodiversityLabPoint;
+          onData(data);
+        } catch (e) {
+          console.error("Error parsing SSE data", e);
+        }
+      }
+    }
+  }
+}
+
 export async function fetchHysteresisExperiment(
   biome: string,
   inflowRange: number[] = []

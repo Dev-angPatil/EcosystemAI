@@ -58,8 +58,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { fetchSimulation, fetchBiodiversityExperiment, fetchHysteresisExperiment, fetchLeslieProjection } from "../api";
 import { defaultControls, presets, defaultSpecies } from "../presets";
 import type { CoachAnalysis, DataPoint, SimulatorControls, SpeciesConfig, StabilityAnalysis, ComplexNumber, BiodiversityLabPoint, HysteresisPoint, LeslieMatrixPoint, LeslieMatrixResponse } from "../types";
-import { ControlSlider } from "./control-slider";
+import { CustomTooltip } from "./custom-tooltip";
+import { EigenvaluePlane } from "./eigenvalue-plane";
+import { JacobianMatrix } from "./jacobian-matrix";
+import { DashboardHeader } from "./dashboard-header";
 import { Typewriter } from "./typewriter";
+import { ControlSlider } from "./control-slider";
 
 const initialAnalysis: CoachAnalysis = {
   ecological_status: "Stable",
@@ -94,127 +98,7 @@ function statusTone(status: CoachAnalysis["ecological_status"]) {
   return "border-emerald-400/45 bg-emerald-500/10 text-emerald-100";
 }
 
-function CustomTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
-  label?: string;
-}) {
-  if (!active || !payload?.length) {
-    return null;
-  }
 
-  return (
-    <div className="rounded-md border border-hairline bg-surface-card p-3">
-      <div className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-primary">Year {label}</div>
-      <div className="space-y-1">
-        {payload.map((entry) => (
-          <div key={entry.name} className="flex items-center justify-between gap-6 text-xs">
-            <span style={{ color: entry.color }}>{entry.name}</span>
-            <span className="font-mono text-slate-100">{Math.round(entry.value).toLocaleString()}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function EigenvaluePlane({ eigenvalues }: { eigenvalues: ComplexNumber[] }) {
-  const mapRealToX = (val: number) => 120 + val * 65;
-  const mapImagToY = (val: number) => 120 - val * 65;
-
-  return (
-    <div className="relative border border-slate-800/80 bg-slate-950/60 rounded-lg p-4 flex flex-col items-center">
-      <div className="text-xs font-mono text-cyan-200 mb-2 uppercase tracking-wider">Complex Eigenvalue Plane</div>
-      <svg width="240" height="240" className="border border-slate-900 bg-slate-950 rounded select-none shadow-[inset_0_0_12px_rgba(0,0,0,0.8)]">
-        {/* Grid lines */}
-        <line x1="120" y1="0" x2="120" y2="240" stroke="rgba(255,255,255,0.06)" />
-        <line x1="0" y1="120" x2="240" y2="120" stroke="rgba(255,255,255,0.06)" />
-        
-        {/* Helper grids */}
-        <circle cx="120" cy="120" r="65" stroke="rgba(255,255,255,0.03)" fill="none" strokeDasharray="2 4" />
-        
-        {/* Axis labels */}
-        <text x="220" y="115" fill="rgba(255,255,255,0.3)" fontSize="8" fontFamily="monospace">Re</text>
-        <text x="125" y="15" fill="rgba(255,255,255,0.3)" fontSize="8" fontFamily="monospace">Im</text>
-
-        {/* Boundary of stability: dashed line at Re=0 */}
-        <line x1="120" y1="0" x2="120" y2="240" stroke="#f43f5e" strokeWidth="1" strokeDasharray="3 3" opacity={0.85} />
-        
-        {/* Eigenvalues */}
-        {eigenvalues.map((ev, i) => {
-          const cx = Math.min(235, Math.max(5, mapRealToX(ev.real)));
-          const cy = Math.min(235, Math.max(5, mapImagToY(ev.imag)));
-          const isStable = ev.real < 0;
-          return (
-            <g key={i}>
-              <circle
-                cx={cx}
-                cy={cy}
-                r={6}
-                fill={isStable ? "#10b981" : "#f43f5e"}
-                className="cursor-pointer hover:scale-125 transition-transform"
-                style={{ filter: `drop-shadow(0 0 5px ${isStable ? "#10b981" : "#f43f5e"})` }}
-              />
-              <title>{`λ = ${ev.real.toFixed(3)} + ${ev.imag.toFixed(3)}i`}</title>
-            </g>
-          );
-        })}
-      </svg>
-      <div className="mt-3 flex gap-4 text-[10px] font-mono">
-        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> Stable (Re &lt; 0)</span>
-        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-rose-500" /> Unstable (Re &ge; 0)</span>
-      </div>
-    </div>
-  );
-}
-
-function JacobianMatrix({ matrix, activeSpecies }: { matrix: number[][]; activeSpecies: SpeciesConfig[] }) {
-  if (!matrix || matrix.length === 0) return null;
-  return (
-    <div className="border border-slate-800/80 bg-slate-950/60 rounded-lg p-4 flex flex-col w-full">
-      <div className="text-xs font-mono text-cyan-200 mb-3 uppercase tracking-wider">Jacobian Interaction Coefficients</div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-center border-collapse">
-          <thead>
-            <tr>
-              <th className="p-1 text-[9px] font-mono text-slate-500"></th>
-              {activeSpecies.map(sp => (
-                <th key={sp.id} className="p-1.5 text-[9px] font-mono text-slate-400 capitalize max-w-[50px] truncate" title={sp.name}>
-                  {sp.id.slice(0, 4)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {matrix.map((row, rIdx) => (
-              <tr key={rIdx} className="hover:bg-white/[0.02]">
-                <td className="p-1.5 text-[9px] font-mono text-slate-400 text-left capitalize max-w-[50px] truncate" title={activeSpecies[rIdx]?.name}>
-                  {activeSpecies[rIdx]?.id.slice(0, 4)}
-                </td>
-                {row.map((val, cIdx) => {
-                  const isDiag = rIdx === cIdx;
-                  const colorClass = val > 0 ? "text-emerald-400" : val < 0 ? "text-rose-400" : "text-slate-500";
-                  return (
-                    <td
-                      key={cIdx}
-                      className={`p-1.5 text-[10px] font-mono border border-slate-900 ${colorClass} ${isDiag ? "bg-slate-900/40" : ""}`}
-                    >
-                      {val.toFixed(4)}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
 
 
 
@@ -936,73 +820,7 @@ export function EcoChainDashboard() {
     <main className="min-h-screen bg-canvas p-3 text-body sm:p-4 lg:p-5">
       <div className="scanline relative min-h-[calc(100vh-2rem)] overflow-hidden rounded-lg border border-hairline bg-canvas">
         <div className="relative z-10 flex min-h-[calc(100vh-2rem)] flex-col">
-          <header className="border-b border-hairline bg-surface-soft px-4 py-3 md:px-5">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex items-center gap-3">
-                <div className="grid size-11 place-items-center rounded-lg border border-hairline bg-surface-card">
-                  <Hexagon className="size-5 text-primary" />
-                </div>
-                <div>
-                  <div className="font-mono text-[11px] uppercase tracking-[0.32em] text-primary">
-                    EcoChain-AI / Degree-Level Ecology LMS
-                  </div>
-                  <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink md:text-3xl">
-                    Ecosystem Sandbox & Research Desk
-                  </h1>
-                </div>
-              </div>
-
-              {/* Main Curriculum navigation tabs */}
-              <div className="flex flex-wrap items-center gap-1.5 bg-surface-soft border border-hairline p-1 rounded-lg">
-                {[
-                  ["trophic", "Trophic Dynamics"],
-                  ["energy", "Energy Flow"],
-                  ["physiology", "Canopy Physiology"],
-                  ["hydrology", "Hydrology & Energy"],
-                  ["biogeochem", "Soil & Biogeochemistry"],
-                  ["biodiversity", "Biodiversity Lab"],
-                  ["population", "Population Dynamics"],
-                  ["human", "Human Impact"],
-                  ["climate", "Climate Futures"],
-                  ["hysteresis", "Lake Hysteresis Lab"],
-                  ["literature", "Literature Corner"],
-                ].map(([tabKey, label]) => {
-                  return (
-                    <button
-                      key={tabKey}
-                      onClick={() => setCurriculumTab(tabKey)}
-                      className={`px-3 py-1.5 rounded text-xs font-mono transition-all ${
-                        curriculumTab === tabKey
-                          ? "bg-surface-card border border-hairline/40 text-ink"
-                          : "text-muted hover:text-ink border border-transparent"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedLab(selectedLab ? null : "may-stability");
-                    if (!selectedLab) {
-                      startLab("may-stability");
-                    }
-                  }}
-                  className={`px-3 py-2 rounded-md border text-xs font-mono uppercase tracking-wider flex items-center gap-2 transition ${
-                    selectedLab
-                      ? "bg-primary border-primary text-on-primary font-semibold"
-                      : "border-hairline bg-surface-card hover:bg-surface-elevated text-ink"
-                  }`}
-                >
-                  <FlaskConical className="size-4" />
-                  {selectedLab ? "Drawer Active" : "Guided Lab Missions"}
-                </button>
-              </div>
-            </div>
-          </header>
+          <DashboardHeader />
 
           <section className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 md:p-5 min-h-0">
             {/* Left Sidebar Panel */}
