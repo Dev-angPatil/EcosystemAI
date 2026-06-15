@@ -334,14 +334,14 @@ export function CanopyPhysiologyView() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={parCurveData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
-                  <XAxis dataKey="par" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <XAxis dataKey="par" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Tooltip content={<CustomTooltip labelPrefix="PAR" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} verticalAlign="top" height={20} />
                   
-                  <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="3 3" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1.5} strokeDasharray="3 3" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2.5} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                   <ReferenceLine x={controls.light_intensity ?? 800.0} stroke="#ef4444" strokeDasharray="2 2" />
                 </LineChart>
               </ResponsiveContainer>
@@ -351,14 +351,14 @@ export function CanopyPhysiologyView() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={co2CurveData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
-                  <XAxis dataKey="co2" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <XAxis dataKey="co2" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Tooltip content={<CustomTooltip labelPrefix="CO₂" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} verticalAlign="top" height={20} />
                   
-                  <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="3 3" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1.5} strokeDasharray="3 3" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2.5} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                   <ReferenceLine x={controls.co2 ?? 420.0} stroke="#ef4444" strokeDasharray="2 2" />
                 </LineChart>
               </ResponsiveContainer>

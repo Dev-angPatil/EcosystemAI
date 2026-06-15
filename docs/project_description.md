@@ -6,37 +6,70 @@ EcoChain-AI is a high-fidelity interactive sandbox and Socratic learning managem
 
 ## 🏛️ System Architecture
 
+### 1. Data Flow Architecture
 ```mermaid
-graph TD
+flowchart TD
     classDef client fill:#111111,stroke:#faff69,stroke-width:2px,color:#ffffff;
     classDef server fill:#1d1d1d,stroke:#06b6d4,stroke-width:2px,color:#ffffff;
     classDef ai fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#ffffff;
+
+    subgraph Client ["Next.js 16 Web Interface (React 19)"]
+        UI["1. Dashboard Portal"]:::client
+        Charts["2. Recharts Visualize (CustomTooltip)"]:::client
+        LMS["3. LMS Lab Drawer (8 Missions & Quizzes)"]:::client
+    end
+
+    subgraph Backend ["Python FastAPI Server"]
+        API["4. FastAPI Router"]:::server
+        Solvers["5. SciPy ODE Solvers (Lotka-Volterra)"]:::server
+        Century["6. Century Carbon/Nitrogen Kinetics"]:::server
+        Heuristics["7. Local Anomaly Heuristics"]:::server
+    end
+
+    subgraph Inference ["Featherless.ai Serverless LLM"]
+        LLM["8. Llama-3.1-8B-Instruct"]:::ai
+    end
+
+    UI -->|Adjust Biomes/Abiotic Sliders| API
+    LMS -->|Select Lab Challenge| UI
     
-    subgraph Client ["Next.js 16 Web Dashboard"]
-        UI["Ecosystem Interface (React 19)"]:::client
-        Charts["Telemetry Charts (Recharts + CustomTooltip)"]:::client
-        LMS["LMS Drawer (8 Labs & Quizzes)"]:::client
-    end
+    API -->|Solve differential equations| Solvers
+    Solvers -->|Compute decomposition & nutrient cycles| Century
+    Century -->|State timeline results| API
+    API -->|Simulation JSON Trajectory| UI
+    UI -->|Render population curves| Charts
 
-    subgraph Backend ["Python FastAPI Backend"]
-        API["FastAPI Routing Engine"]:::server
-        Solvers["ODE/Matrix Solver (SciPy & NumPy)"]:::server
-        Heuristics["Local Anomaly Heuristics"]:::server
-    end
+    Charts -->|Telemetry payload: populations, rates, metrics| API
+    API -->|Pre-evaluates thresholds| Heuristics
+    API -->|POST JSON Request (OpenAI SDK)| LLM
+    LLM -->|Generate Socratic Coaching Questions & Diagnoses| API
+    API -->|Return validated CoachAnalysis Pydantic object| UI
+    UI -->|Typewriter render cognitive feedback| UI
+```
 
-    subgraph AIService ["Featherless.ai Serverless LLM Hosting"]
-        Llama["Llama-3.1-8B-Instruct Model"]:::ai
-    end
+### 2. Telemetry-Driven Socratic Loop Lifecycle
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student
+    participant UI as Next.js 16 Client
+    participant API as FastAPI Backend
+    participant SciPy as SciPy/Century Solver
+    participant LLM as Featherless.ai (Llama-3.1)
 
-    UI -->|1. Run Simulation Request| API
-    API -->|2. Compute State Trajectories| Solvers
-    Solvers -->|3. Population & Nutrient Timelines| API
-    API -->|4. Return Simulation Trajectory| UI
-    UI -->|5. Submit Telemetry Payload| API
-    API -->|6. Local Anomaly Evaluation| Heuristics
-    API -->|7. JSON Structured Request| Llama
-    Llama -->|8. Structured Socratic Questions & Anomalies| API
-    API -->|9. Update Coach Panel| UI
+    Student->>UI: Select Lab & Adjust Abiotic Sliders (e.g. Temp, CO2)
+    UI->>API: POST /simulate (presets, parameters, stressors)
+    API->>SciPy: Solve Lotka-Volterra ODEs & Soil Kinetics
+    SciPy-->>API: Return 30-year state timelines (populations, carbon/nitrogen)
+    API-->>UI: Return Timeline JSON Payload
+    UI->>UI: Render Recharts & trigger active hover tooltips
+    UI->>API: POST /coach/analyze (timeline, parameters, metrics)
+    API->>API: Run heuristic safety filters (Trophic Cascade/Eutrophication checks)
+    API->>LLM: Stream chat completion request with JSON schema validation
+    LLM-->>API: Return structured JSON response (ecological status, questions)
+    API->>API: Validate schema against Pydantic CoachAnalysis model
+    API-->>UI: Return validated CoachAnalysis payload
+    UI->>Student: Typewriter render Socratic diagnostic analysis & questions
 ```
 
 ---

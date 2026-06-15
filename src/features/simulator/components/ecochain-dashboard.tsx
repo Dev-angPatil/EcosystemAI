@@ -951,14 +951,14 @@ export function EcoChainDashboard() {
                             };
                           })}
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                          <XAxis dataKey="year" stroke="#5a5a5a" style={{ fontSize: 9, fontFamily: "monospace" }} />
-                          <YAxis stroke="#5a5a5a" style={{ fontSize: 9, fontFamily: "monospace" }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                          <XAxis dataKey="year" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
+                          <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
                           <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                           <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
-                          <Line type="monotone" dataKey="Sensible Heat (H)" stroke="#eab308" strokeWidth={2} dot={false} />
-                          <Line type="monotone" dataKey="Latent Heat (LE)" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                          <Line type="monotone" dataKey="Soil Moisture (x1000)" stroke="#10b981" strokeDasharray="3 3" strokeWidth={1.5} dot={false} />
+                          <Line type="monotone" dataKey="Sensible Heat (H)" stroke="#eab308" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                          <Line type="monotone" dataKey="Latent Heat (LE)" stroke="#3b82f6" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                          <Line type="monotone" dataKey="Soil Moisture (x1000)" stroke="#10b981" strokeDasharray="3 3" strokeWidth={1.8} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -1108,11 +1108,11 @@ export function EcoChainDashboard() {
                             {biodiversityData.length > 0 ? (
                               <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={biodiversityData}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                                  <XAxis dataKey="richness" stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Species Richness (S)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 8, fontFamily: "monospace" }} />
-                                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} />
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                                  <XAxis dataKey="richness" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Species Richness (S)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 8, fontFamily: "monospace" }} />
+                                  <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
                                   <Tooltip content={<CustomTooltip labelPrefix="Species Richness" />} />
-                                  <Line type="monotone" dataKey="yield" name="Yield" stroke="#faff69" strokeWidth={2.5} dot={{ r: 4, strokeWidth: 0, fill: "#faff69" }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                                  <Line type="monotone" dataKey="yield" name="Yield" stroke="#faff69" strokeWidth={2.8} dot={{ r: 4, strokeWidth: 0, fill: "#faff69" }} activeDot={{ r: 5, strokeWidth: 0 }} />
                                 </LineChart>
                               </ResponsiveContainer>
                             ) : (
@@ -1131,11 +1131,11 @@ export function EcoChainDashboard() {
                             {biodiversityData.length > 0 ? (
                               <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={biodiversityData}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                                  <XAxis dataKey="richness" stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Species Richness (S)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 8, fontFamily: "monospace" }} />
-                                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} />
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                                  <XAxis dataKey="richness" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Species Richness (S)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 8, fontFamily: "monospace" }} />
+                                  <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
                                   <Tooltip content={<CustomTooltip labelPrefix="Species Richness" />} />
-                                  <Line type="monotone" dataKey="stability" name="Stability" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4, strokeWidth: 0, fill: "#06b6d4" }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                                  <Line type="monotone" dataKey="stability" name="Stability" stroke="#06b6d4" strokeWidth={2.8} dot={{ r: 4, strokeWidth: 0, fill: "#06b6d4" }} activeDot={{ r: 5, strokeWidth: 0 }} />
                                 </LineChart>
                               </ResponsiveContainer>
                             ) : (
@@ -1444,11 +1444,11 @@ export function EcoChainDashboard() {
                           <div className="text-[10px] font-mono text-primary uppercase tracking-wider mb-2">Population Trajectory — {leslieSpeciesName}</div>
                           <ResponsiveContainer width="100%" height="85%">
                             <LineChart data={leslieResponse.data} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                              <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
-                              <YAxis tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
+                              <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                              <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
+                              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
                               <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
-                              <Line type="monotone" dataKey="total" stroke="#faff69" strokeWidth={2} dot={false} name="Total N" activeDot={{ r: 4, strokeWidth: 0 }} />
+                              <Line type="monotone" dataKey="total" stroke="#faff69" strokeWidth={2.5} dot={false} name="Total N" activeDot={{ r: 4, strokeWidth: 0 }} />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
@@ -1458,12 +1458,12 @@ export function EcoChainDashboard() {
                           <div className="text-[10px] font-mono text-primary uppercase tracking-wider mb-2">Per-Year Growth Rate (λ convergence)</div>
                           <ResponsiveContainer width="100%" height="80%">
                             <LineChart data={leslieResponse.data.slice(1)} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                              <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
-                              <YAxis tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} domain={["auto", "auto"]} />
+                              <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                              <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
+                              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} domain={["auto", "auto"]} />
                               <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                               <ReferenceLine y={1.0} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={1} label={{ value: "λ=1", fill: "#ef4444", fontSize: 9, fontFamily: "monospace" }} />
-                              <Line type="monotone" dataKey="growth_rate" stroke="#06b6d4" strokeWidth={1.5} dot={false} name="λ(t)" activeDot={{ r: 4, strokeWidth: 0 }} />
+                              <Line type="monotone" dataKey="growth_rate" stroke="#06b6d4" strokeWidth={2} dot={false} name="λ(t)" activeDot={{ r: 4, strokeWidth: 0 }} />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
@@ -1567,16 +1567,16 @@ export function EcoChainDashboard() {
                           <div className="h-52">
                             <ResponsiveContainer width="100%" height="100%">
                               <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                                <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#5a5a5a", fontFamily: "monospace" }} />
-                                <YAxis tick={{ fontSize: 9, fill: "#5a5a5a", fontFamily: "monospace" }} domain={[0, 5]} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#5a5a5a", fontFamily: "monospace" }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#5a5a5a", fontFamily: "monospace" }} domain={[0, 5]} />
                                 <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                                 <Legend iconSize={8} wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
                                 <ReferenceLine y={1.5} stroke="#06b6d4" strokeDasharray="3 3" strokeWidth={1} />
                                 <ReferenceLine y={2.0} stroke="#f59e0b" strokeDasharray="3 3" strokeWidth={1} />
-                                <Line type="monotone" dataKey="RCP 2.6" stroke="#10b981" strokeWidth={rcpScenario === "rcp26" ? 3 : 1} dot={false} opacity={rcpScenario === "rcp26" ? 1 : 0.4} />
-                                <Line type="monotone" dataKey="RCP 4.5" stroke="#f59e0b" strokeWidth={rcpScenario === "rcp45" ? 3 : 1} dot={false} opacity={rcpScenario === "rcp45" ? 1 : 0.4} />
-                                <Line type="monotone" dataKey="RCP 8.5" stroke="#f43f5e" strokeWidth={rcpScenario === "rcp85" ? 3 : 1} dot={false} opacity={rcpScenario === "rcp85" ? 1 : 0.4} />
+                                <Line type="monotone" dataKey="RCP 2.6" stroke="#10b981" strokeWidth={rcpScenario === "rcp26" ? 3 : 1.5} dot={false} opacity={rcpScenario === "rcp26" ? 1 : 0.4} activeDot={{ r: 4, strokeWidth: 0 }} />
+                                <Line type="monotone" dataKey="RCP 4.5" stroke="#f59e0b" strokeWidth={rcpScenario === "rcp45" ? 3 : 1.5} dot={false} opacity={rcpScenario === "rcp45" ? 1 : 0.4} activeDot={{ r: 4, strokeWidth: 0 }} />
+                                <Line type="monotone" dataKey="RCP 8.5" stroke="#f43f5e" strokeWidth={rcpScenario === "rcp85" ? 3 : 1.5} dot={false} opacity={rcpScenario === "rcp85" ? 1 : 0.4} activeDot={{ r: 4, strokeWidth: 0 }} />
                               </LineChart>
                             </ResponsiveContainer>
                           </div>

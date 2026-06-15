@@ -281,15 +281,15 @@ export function SoilBiogeochemView() {
         <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={timeline}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-              <XAxis dataKey="year" stroke="#5a5a5a" tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
-              <YAxis stroke="#5a5a5a" tickLine={false} axisLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+              <XAxis dataKey="year" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
+              <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
               <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
               <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
               
-              <Line type="monotone" dataKey="nutrients.C" name="Carbon (C)" stroke="#d97706" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="nutrients.N" name="Nitrogen (N)" stroke="#8b5cf6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="nutrients.P" name="Phosphorus (P)" stroke="#faff69" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="nutrients.C" name="Carbon (C)" stroke="#d97706" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+              <Line type="monotone" dataKey="nutrients.N" name="Nitrogen (N)" stroke="#8b5cf6" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+              <Line type="monotone" dataKey="nutrients.P" name="Phosphorus (P)" stroke="#faff69" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -307,14 +307,14 @@ export function SoilBiogeochemView() {
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={somTimelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                  <XAxis dataKey="year" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                  <XAxis dataKey="year" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <Area type="monotone" dataKey="Active" name="Active (Labile)" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
-                  <Area type="monotone" dataKey="Slow" name="Slow (Cellular)" stackId="1" stroke="#a16207" fill="#a16207" fillOpacity={0.2} />
-                  <Area type="monotone" dataKey="Passive" name="Passive (Humified)" stackId="1" stroke="#78350f" fill="#78350f" fillOpacity={0.2} />
+                  <Area type="monotone" dataKey="Active" name="Active (Labile)" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Area type="monotone" dataKey="Slow" name="Slow (Cellular)" stackId="1" stroke="#a16207" fill="#a16207" fillOpacity={0.15} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Area type="monotone" dataKey="Passive" name="Passive (Humified)" stackId="1" stroke="#78350f" fill="#78350f" fillOpacity={0.15} activeDot={{ r: 4, strokeWidth: 0 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -329,13 +329,13 @@ export function SoilBiogeochemView() {
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={somTimelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
-                  <XAxis dataKey="year" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
+                  <XAxis dataKey="year" stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
+                  <YAxis stroke="#5a5a5a" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <Line type="monotone" dataKey="Ammonium" name="Ammonium (NH₄⁺)" stroke="#a78bfa" strokeWidth={1.8} dot={false} />
-                  <Line type="monotone" dataKey="Nitrate" name="Nitrate (NO₃⁻)" stroke="#818cf8" strokeWidth={1.8} dot={false} />
+                  <Line type="monotone" dataKey="Ammonium" name="Ammonium (NH₄⁺)" stroke="#a78bfa" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="Nitrate" name="Nitrate (NO₃⁻)" stroke="#818cf8" strokeWidth={2.2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
