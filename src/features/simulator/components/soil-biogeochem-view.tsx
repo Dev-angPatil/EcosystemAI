@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Map as MapIcon, Activity, Cpu, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { CustomTooltip } from "./custom-tooltip";
 
 export function SoilBiogeochemView() {
   const {
@@ -283,7 +284,7 @@ export function SoilBiogeochemView() {
               <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
               <XAxis dataKey="year" stroke="#5a5a5a" tickLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
               <YAxis stroke="#5a5a5a" tickLine={false} axisLine={false} tick={{ fontSize: 9, fontFamily: "monospace" }} />
-              <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 10, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+              <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
               <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
               
               <Line type="monotone" dataKey="nutrients.C" name="Carbon (C)" stroke="#d97706" strokeWidth={2} dot={false} />
@@ -309,7 +310,7 @@ export function SoilBiogeochemView() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                   <XAxis dataKey="year" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                  <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Area type="monotone" dataKey="Active" name="Active (Labile)" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
                   <Area type="monotone" dataKey="Slow" name="Slow (Cellular)" stackId="1" stroke="#a16207" fill="#a16207" fillOpacity={0.2} />
@@ -331,7 +332,7 @@ export function SoilBiogeochemView() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                   <XAxis dataKey="year" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                  <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} />
                   <Line type="monotone" dataKey="Ammonium" name="Ammonium (NH₄⁺)" stroke="#a78bfa" strokeWidth={1.8} dot={false} />
                   <Line type="monotone" dataKey="Nitrate" name="Nitrate (NO₃⁻)" stroke="#818cf8" strokeWidth={1.8} dot={false} />

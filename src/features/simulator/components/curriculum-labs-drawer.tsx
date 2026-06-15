@@ -302,7 +302,7 @@ export function CurriculumLabsDrawer({
   }, [timeline, species, stability, linkStrength, biome, corridorY, eutrophicationPulse, climateWarmingRate, toxinInfluxRate, controls, hysteresisData]);
 
   const passedCount = Object.keys(quizPassed).filter(k => quizPassed[k] === true).length;
-  const totalLabs = 2;
+  const totalLabs = 8;
 
   const renderQuiz = (labId: string, questions: Array<{ q: string; opts: string[]; ans: number }>) => {
     const isSubmitted = quizSubmitted[labId] === true;
@@ -452,8 +452,14 @@ export function CurriculumLabsDrawer({
                   }}
                   className="w-full bg-canvas border border-hairline rounded p-2 text-sm text-primary font-mono focus:outline-none"
                 >
-                  <option value="physiology-wue">1. Canopy Physiology & WUE</option>
-                  <option value="lake-hysteresis">2. Shallow Lake Hysteresis</option>
+                  <option value="may-stability">1. May's Complexity Limit</option>
+                  <option value="competitive">2. Competitive Exclusion</option>
+                  <option value="rescue">3. Metapopulation Rescue</option>
+                  <option value="eutrophication">4. Eutrophication Dead Zones</option>
+                  <option value="climate-toxins">5. Climate & Biomagnification</option>
+                  <option value="physiology-wue">6. Canopy Physiology & WUE</option>
+                  <option value="lake-hysteresis">7. Shallow Lake Hysteresis</option>
+                  <option value="som-kinetics">8. Soil Carbon Kinetics</option>
                 </select>
               </div>
 
@@ -970,12 +976,12 @@ export function CurriculumLabsDrawer({
                 </div>
               )}
 
-              {passedCount === totalLabs && (
+              {passedCount === 8 && (
                 <div className="bg-emerald-500/15 border border-emerald-400/40 p-3.5 rounded-lg text-emerald-300 font-mono text-[10px] uppercase tracking-wider text-center flex flex-col gap-2 mt-4">
                   <span>🎓 All labs certified! Curriculum Complete!</span>
                   <button 
                     onClick={() => {
-                      alert("🎓 ECOCHAIN-AI LMS CERTIFICATE OF COMPLETION\n\nStudent has successfully passed all university-level ecology laboratory examinations:\n1. Canopy Physiology & Water Use Efficiency (Certified)\n2. Shallow Lake Phosphorus Hysteresis (Certified)\n\nGPA: 4.0 / 4.0\nEcosystemAI Registrar.");
+                      alert("🎓 ECOCHAIN-AI LMS CERTIFICATE OF COMPLETION\n\nStudent has successfully passed all university-level ecology laboratory examinations:\n1. Complexity Limit & Stability Theory (Certified)\n2. Competitive Exclusion Principle (Certified)\n3. Metapopulation Rescue Effect (Certified)\n4. Eutrophication & Hypoxic Dead Zones (Certified)\n5. Climate Shifts & Biomagnification (Certified)\n6. Canopy Physiology & Water Use Efficiency (Certified)\n7. Shallow Lake Phosphorus Hysteresis (Certified)\n8. Soil Organic Carbon Kinetics (Certified)\n\nGPA: 4.0 / 4.0\nEcosystemAI Registrar.");
                     }}
                     className="px-2 py-1 bg-success text-canvas font-bold hover:bg-emerald-400 rounded transition"
                   >

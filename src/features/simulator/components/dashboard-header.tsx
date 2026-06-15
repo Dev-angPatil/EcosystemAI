@@ -53,10 +53,11 @@ export function DashboardHeader({ onStartDemo, isDemoMode }: DashboardHeaderProp
 
         <div className="flex flex-wrap items-center gap-1.5 bg-surface-soft border border-hairline p-1 rounded-lg">
           {[
+            ["trophic", "Ecosystem Sandbox"],
             ["energy", "Energy Flow"],
             ["physiology", "Canopy Physiology"],
             ["biodiversity", "Biodiversity Lab"],
-            ["population", "Population Dynamics"],
+            ["population", "Leslie Demography"],
             ["human", "Human Impact"],
             ["climate", "Climate Futures"],
             ["hysteresis", "Lake Hysteresis Lab"],
@@ -68,7 +69,7 @@ export function DashboardHeader({ onStartDemo, isDemoMode }: DashboardHeaderProp
                 onClick={() => setCurriculumTab(tabKey)}
                 className={`px-3 py-1.5 rounded-md text-nav-link transition-all ${
                   curriculumTab === tabKey
-                    ? "bg-surface-card border border-hairline/40 text-ink"
+                    ? "bg-surface-card border border-hairline/40 text-ink font-semibold"
                     : "text-muted hover:text-ink border border-transparent"
                 }`}
               >
@@ -97,6 +98,7 @@ export function DashboardHeader({ onStartDemo, isDemoMode }: DashboardHeaderProp
           )}
 
           <button
+            data-demo-id="labs-button"
             onClick={() => {
               setSelectedLab(selectedLab ? null : "physiology-wue");
               if (!selectedLab) {

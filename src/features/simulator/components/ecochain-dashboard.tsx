@@ -165,6 +165,7 @@ export function EcoChainDashboard() {
 
   // ─── Demo Tour State ───────────────────────────────────────────────────────
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [trophicTab, setTrophicTab] = useState("map");
 
   const [hysteresisData, setHysteresisData] = useState<HysteresisPoint[]>([]);
   const [isHysteresisLoading, setIsHysteresisLoading] = useState<boolean>(false);
@@ -405,74 +406,106 @@ export function EcoChainDashboard() {
       id: "biome-setup",
       title: "🌳 Biome & Species Setup",
       description:
-        "Select an ecosystem biome and configure which species are active. Toggle producers, herbivores, and predators on or off and set their initial population density.",
+        "Select an ecosystem biome (e.g. Forest, Marine, Desert) and configure active species. You can toggle producers, herbivores, carnivores, and apex predators, and adjust their initial population density.",
       targetId: "control-panel",
       side: "right",
-      onActivate: () => {
-        // No biome change needed, just highlight the panel
-      },
     },
     {
       id: "run-simulation",
       title: "⚡ Run the Simulation",
       description:
-        "Hit Run Simulation to send parameters to the cloud API. The solver runs a 30-year Lotka-Volterra ODE system remotely — no heavy compute on your device.",
+        "Click this button to run a 30-year Lotka-Volterra ODE simulation on the server. The simulator automatically recalculates populations, nutrient cycles, and system stability.",
       targetId: "run-button",
       side: "top",
       onActivate: () => {
-        // Trigger a fresh simulation so graphs update
         triggerSimulation();
       },
     },
     {
-      id: "population-dynamics",
-      title: "📈 Population Dynamics",
+      id: "population-map",
+      title: "🗺️ Spatial Population Map",
       description:
-        "Observe species populations evolve over 30 years. Lotka-Volterra predator-prey cycles emerge naturally — watch oscillations build and stabilise.",
-      targetId: "population-chart",
+        "Visualize populations across a 10x10 grid of cells. Click Play to watch species migrate and expand. Select a disturbance tool (Wildfire, Logging, or Grazing) above to perturb specific grid cells.",
+      targetId: "spatial-grid-map",
       side: "top",
-      onActivate: () => setCurriculumTab("population"),
+      onActivate: () => {
+        setCurriculumTab("trophic");
+        setTrophicTab("map");
+      },
     },
     {
-      id: "biodiversity-lab",
-      title: "🧬 Biodiversity Lab",
+      id: "trophic-trajectory",
+      title: "📈 Population Trajectories",
       description:
-        "Run batch simulations across species-richness levels to explore the Biodiversity-Ecosystem Functioning (BEF) relationship and insurance effects.",
-      targetId: "central-panel",
+        "Observe the 30-year population trajectory of your ecosystem. Lotka-Volterra cycles emerge naturally, showcasing classic predator-prey oscillations and coexistence dynamics.",
+      targetId: "trophic-trajectory-chart",
       side: "top",
-      onActivate: () => setCurriculumTab("biodiversity"),
+      onActivate: () => {
+        setCurriculumTab("trophic");
+        setTrophicTab("chart");
+      },
     },
     {
-      id: "climate-futures",
-      title: "🌡️ Climate Futures",
+      id: "stability-analysis",
+      title: "🔬 Stability & Eigenvalues",
       description:
-        "Model RCP 2.6, 4.5 and 8.5 warming trajectories and observe tipping points where ecosystem resilience collapses irreversibly under thermal stress.",
-      targetId: "central-panel",
+        "Dive into local stability analysis of the coexistence equilibrium. View the Jacobian matrix and its eigenvalues plotted on the complex plane. If all real parts are negative, the ecosystem is stable.",
+      targetId: "stability-analysis-view",
       side: "top",
-      onActivate: () => setCurriculumTab("climate"),
+      onActivate: () => {
+        setCurriculumTab("trophic");
+        setTrophicTab("stability");
+      },
     },
     {
       id: "canopy-physiology",
       title: "🌿 Canopy Physiology",
       description:
-        "Dive into leaf-level gas exchange with the FvCB biochemical model. Tune CO₂, temperature and light to see how photosynthesis and stomatal conductance respond.",
+        "Model leaf-level gas exchange using the Farquhar-von Caemmerer-Berry (FvCB) biochemical model. Adjust temperature, relative humidity, light, and CO2, and observe photosynthesis (A_net) and stomatal conductance (g_s) responses.",
       targetId: "central-panel",
       side: "top",
       onActivate: () => setCurriculumTab("physiology"),
     },
     {
-      id: "ai-coach",
-      title: "🧠 AI Ecosystem Coach",
+      id: "biodiversity-lab",
+      title: "🧬 Biodiversity Lab",
       description:
-        "The Socratic Lab Partner analyses simulation output in real-time, detects ecological anomalies, and poses targeted Socratic questions to deepen understanding.",
+        "Run batch experiments across species richness combinations. Observe how increasing primary producer diversity stabilizes total primary productivity (the Insurance Hypothesis).",
+      targetId: "central-panel",
+      side: "top",
+      onActivate: () => setCurriculumTab("biodiversity"),
+    },
+    {
+      id: "leslie-demography",
+      title: "👶 Age-Structured Demography",
+      description:
+        "Model age-structured population dynamics using Leslie Matrix projections. Configure age-class survival and fecundity rates to compute dominant eigenvalues (long-run lambda) and stable age distributions.",
+      targetId: "population-chart",
+      side: "top",
+      onActivate: () => setCurriculumTab("population"),
+    },
+    {
+      id: "climate-futures",
+      title: "🌡️ Climate Futures & Stressors",
+      description:
+        "Explore anthropogenic stressors: climate warming rate, heavy metal toxin influx, and eutrophication nutrient runoffs. Watch for tipping points and population collapses under cumulative stress.",
+      targetId: "central-panel",
+      side: "top",
+      onActivate: () => setCurriculumTab("climate"),
+    },
+    {
+      id: "ai-coach",
+      title: "🧠 Socratic Lab Partner",
+      description:
+        "The Socratic AI Coach reads live simulation telemetry, diagnoses ecological state anomalies (e.g. trophic cascades), and asks targeted questions to guide your learning.",
       targetId: "ai-coach-panel",
       side: "left",
     },
     {
       id: "curriculum-labs",
-      title: "🎓 Guided Curriculum Labs",
+      title: "🎓 Guided Lab Missions",
       description:
-        "Open the Curriculum Labs drawer for 8 structured lab missions — each with hypothesis, methodology, quizzes, and a pass/fail certification system.",
+        "Click here to open the drawer containing 8 structured lab missions. Each lab has a clear hypothesis, step-by-step methodology, progress checklists, and a certification quiz.",
       targetId: "labs-button",
       side: "top",
     },
@@ -702,7 +735,7 @@ export function EcoChainDashboard() {
 
               {/* Trophic Dynamics Tab */}
               {curriculumTab === "trophic" && (
-                <Tabs defaultValue="map" className="flex flex-col h-full min-h-0">
+                <Tabs value={trophicTab} onValueChange={setTrophicTab} className="flex flex-col h-full min-h-0">
                   <div className="flex items-center justify-between border-b border-hairline pb-2 mb-3">
                     <TabsList>
                       <TabsTrigger value="map" className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5">
@@ -750,15 +783,15 @@ export function EcoChainDashboard() {
                     </div>
                   </div>
 
-                  <TabsContent value="map" className="flex-1 flex flex-col min-h-0 focus:outline-none mt-0">
+                  <TabsContent value="map" data-demo-id="spatial-grid-map" className="flex-1 flex flex-col min-h-0 focus:outline-none mt-0">
                     <SpatialGridMap />
                   </TabsContent>
-
-                  <TabsContent value="chart" className="flex-1 min-h-0 focus:outline-none mt-0 relative">
+ 
+                  <TabsContent value="chart" data-demo-id="trophic-trajectory-chart" className="flex-1 min-h-0 focus:outline-none mt-0 relative">
                     <TrophicTrajectoryChart />
                   </TabsContent>
-
-                  <TabsContent value="stability" className="flex-1 min-h-0 mt-0 focus:outline-none">
+ 
+                  <TabsContent value="stability" data-demo-id="stability-analysis-view" className="flex-1 min-h-0 mt-0 focus:outline-none">
                     <TrophicStabilityCharts />
                   </TabsContent>
 
@@ -921,7 +954,7 @@ export function EcoChainDashboard() {
                           <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                           <XAxis dataKey="year" stroke="#5a5a5a" style={{ fontSize: 9, fontFamily: "monospace" }} />
                           <YAxis stroke="#5a5a5a" style={{ fontSize: 9, fontFamily: "monospace" }} />
-                          <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 10, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                          <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                           <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
                           <Line type="monotone" dataKey="Sensible Heat (H)" stroke="#eab308" strokeWidth={2} dot={false} />
                           <Line type="monotone" dataKey="Latent Heat (LE)" stroke="#3b82f6" strokeWidth={2} dot={false} />
@@ -1078,7 +1111,7 @@ export function EcoChainDashboard() {
                                   <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                                   <XAxis dataKey="richness" stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Species Richness (S)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 8, fontFamily: "monospace" }} />
                                   <YAxis stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} />
-                                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 10, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                                  <Tooltip content={<CustomTooltip labelPrefix="Species Richness" />} />
                                   <Line type="monotone" dataKey="yield" name="Yield" stroke="#faff69" strokeWidth={2.5} dot={{ r: 4, strokeWidth: 0, fill: "#faff69" }} activeDot={{ r: 5, strokeWidth: 0 }} />
                                 </LineChart>
                               </ResponsiveContainer>
@@ -1101,7 +1134,7 @@ export function EcoChainDashboard() {
                                   <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                                   <XAxis dataKey="richness" stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Species Richness (S)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 8, fontFamily: "monospace" }} />
                                   <YAxis stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} />
-                                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 10, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                                  <Tooltip content={<CustomTooltip labelPrefix="Species Richness" />} />
                                   <Line type="monotone" dataKey="stability" name="Stability" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4, strokeWidth: 0, fill: "#06b6d4" }} activeDot={{ r: 5, strokeWidth: 0 }} />
                                 </LineChart>
                               </ResponsiveContainer>
@@ -1414,7 +1447,7 @@ export function EcoChainDashboard() {
                               <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                               <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
                               <YAxis tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
-                              <Tooltip contentStyle={{ background: "#121212", border: "1px solid #222222", borderRadius: 4, fontSize: 10, fontFamily: "monospace", color: "#ffffff" }} />
+                              <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                               <Line type="monotone" dataKey="total" stroke="#faff69" strokeWidth={2} dot={false} name="Total N" activeDot={{ r: 4, strokeWidth: 0 }} />
                             </LineChart>
                           </ResponsiveContainer>
@@ -1428,7 +1461,7 @@ export function EcoChainDashboard() {
                               <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                               <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} />
                               <YAxis tick={{ fontSize: 9, fill: "#888888", fontFamily: "monospace" }} domain={["auto", "auto"]} />
-                              <Tooltip contentStyle={{ background: "#121212", border: "1px solid #222222", borderRadius: 4, fontSize: 10, fontFamily: "monospace", color: "#ffffff" }} />
+                              <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                               <ReferenceLine y={1.0} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={1} label={{ value: "λ=1", fill: "#ef4444", fontSize: 9, fontFamily: "monospace" }} />
                               <Line type="monotone" dataKey="growth_rate" stroke="#06b6d4" strokeWidth={1.5} dot={false} name="λ(t)" activeDot={{ r: 4, strokeWidth: 0 }} />
                             </LineChart>
@@ -1537,7 +1570,7 @@ export function EcoChainDashboard() {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                                 <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#5a5a5a", fontFamily: "monospace" }} />
                                 <YAxis tick={{ fontSize: 9, fill: "#5a5a5a", fontFamily: "monospace" }} domain={[0, 5]} />
-                                <Tooltip contentStyle={{ background: "#121212", border: "1px solid #222222", borderRadius: 4, fontSize: 10, fontFamily: "monospace", color: "#ffffff" }} />
+                                <Tooltip content={<CustomTooltip labelPrefix="Year" />} />
                                 <Legend iconSize={8} wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
                                 <ReferenceLine y={1.5} stroke="#06b6d4" strokeDasharray="3 3" strokeWidth={1} />
                                 <ReferenceLine y={2.0} stroke="#f59e0b" strokeDasharray="3 3" strokeWidth={1} />
@@ -1772,7 +1805,7 @@ export function EcoChainDashboard() {
                               <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
                               <XAxis dataKey="inflow" stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Phosphorus Inflow Load (I)", position: "insideBottom", offset: -2, fill: "#888888", fontSize: 9, fontFamily: "monospace" }} />
                               <YAxis stroke="#5a5a5a" tick={{ fontSize: 9, fontFamily: "monospace" }} label={{ value: "Lake Phosphorus Concentration (P)", angle: -90, position: "insideLeft", offset: 5, fill: "#888888", fontSize: 9, fontFamily: "monospace" }} />
-                              <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 10, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                              <Tooltip content={<CustomTooltip labelPrefix="Inflow" />} />
                               <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
                               <Line type="monotone" dataKey="Forward (Increasing Loading)" stroke="#f43f5e" strokeWidth={2.5} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                               <Line type="monotone" dataKey="Backward (Decreasing Loading)" stroke="#10b981" strokeWidth={2.5} dot={false} strokeDasharray="5 5" activeDot={{ r: 4, strokeWidth: 0 }} />
@@ -1881,24 +1914,20 @@ export function EcoChainDashboard() {
                 </div>
               )}
             </section>
-
-            <aside data-demo-id="ai-coach-panel" className="contents">
-              <AICoachPanel />
-            </aside>
+ 
+            <AICoachPanel />
           </section>
         </div>
       </div>
-
+ 
       {/* Lab Challenges Drawer */}
-      <div data-demo-id="labs-button" className="contents">
-        <CurriculumLabsDrawer
-          triggerSimulation={triggerSimulation}
-          hysteresisData={hysteresisData}
-          setHysteresisData={setHysteresisData}
-          isHysteresisLoading={isHysteresisLoading}
-          setIsHysteresisLoading={setIsHysteresisLoading}
-        />
-      </div>
+      <CurriculumLabsDrawer
+        triggerSimulation={triggerSimulation}
+        hysteresisData={hysteresisData}
+        setHysteresisData={setHysteresisData}
+        isHysteresisLoading={isHysteresisLoading}
+        setIsHysteresisLoading={setIsHysteresisLoading}
+      />
 
 
       {/* Paper Details Modal */}

@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { HelpCircle, AlertTriangle, Wind, Droplets } from "lucide-react";
+import { CustomTooltip } from "./custom-tooltip";
 
 export function CanopyPhysiologyView() {
   const { species, setSpecies, controls, timeline, currentYear } = useSimulationStore();
@@ -332,15 +333,15 @@ export function CanopyPhysiologyView() {
             <TabsContent value="light" className="h-[140px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={parCurveData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
                   <XAxis dataKey="par" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                  <Tooltip content={<CustomTooltip labelPrefix="PAR" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} verticalAlign="top" height={20} />
                   
                   <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1} strokeDasharray="3 3" dot={false} />
                   <Line type="monotone" dataKey="Aj" name="Light Limit (Aj)" stroke="#eab308" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="A_net" name="Net Photosynthesis (A)" stroke="#faff69" strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                   <ReferenceLine x={controls.light_intensity ?? 800.0} stroke="#ef4444" strokeDasharray="2 2" />
                 </LineChart>
               </ResponsiveContainer>
@@ -349,10 +350,10 @@ export function CanopyPhysiologyView() {
             <TabsContent value="co2" className="h-[140px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={co2CurveData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#222222" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" />
                   <XAxis dataKey="co2" stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
                   <YAxis stroke="#5a5a5a" tick={{ fontSize: 8, fontFamily: "monospace" }} />
-                  <Tooltip contentStyle={{ background: "#121212", borderColor: "#222222", fontSize: 9, fontFamily: "monospace", color: "#ffffff", borderRadius: 4 }} />
+                  <Tooltip content={<CustomTooltip labelPrefix="CO₂" />} />
                   <Legend wrapperStyle={{ fontSize: 8, fontFamily: "monospace" }} verticalAlign="top" height={20} />
                   
                   <Line type="monotone" dataKey="Ac" name="Rubisco Limit (Ac)" stroke="#3b82f6" strokeWidth={1} strokeDasharray="3 3" dot={false} />

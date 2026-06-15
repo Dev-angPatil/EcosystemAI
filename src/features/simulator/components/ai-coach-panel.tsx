@@ -36,7 +36,7 @@ export function AICoachPanel() {
   );
 
   return (
-    <aside className="rounded-lg border border-hairline bg-surface-card p-4 flex flex-col justify-between">
+    <aside data-demo-id="ai-coach-panel" className="rounded-lg border border-hairline bg-surface-card p-4 flex flex-col justify-between h-full">
       <div>
         <div className="mb-4 flex items-center justify-between">
           <div>
